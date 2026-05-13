@@ -29,7 +29,7 @@ const apps = [
     id: 'itinerary',
     name: 'Itinerary Command',
     url: 'https://axsamp.github.io/onyx-itinerary/',
-    iconSrc: 'onyx-itinerary.png',
+    iconSrc: 'itinerary-app-icon.png',
     color: 'from-onyx-purple to-indigo-900',
     type: 'blade-hero',
     shape: 'obsidian-shape-1'
@@ -38,7 +38,7 @@ const apps = [
     id: 'budget',
     name: 'Budget Buffer',
     url: 'https://axsamp.github.io/budget-buffer/',
-    iconSrc: 'budget-buffer.png',
+    iconSrc: 'budget-app-icon.png',
     color: 'from-onyx-purple to-purple-900',
     type: 'blade-deck-left',
     shape: 'obsidian-shape-2'
@@ -47,7 +47,7 @@ const apps = [
     id: 'converter',
     name: 'Onyx Converter',
     url: 'https://axsamp.github.io/onyx-converter/',
-    iconSrc: 'onyx-converter.png',
+    iconSrc: 'converter-app-icon.png',
     color: 'from-onyx-purple to-violet-900',
     type: 'blade-deck-right',
     shape: 'obsidian-shape-1'
@@ -56,7 +56,7 @@ const apps = [
     id: 'stamps',
     name: 'Stamp Collector',
     url: 'https://axsamp.github.io/onyx-stamps/',
-    iconSrc: 'onyx-stamps.png',
+    iconSrc: 'stamps-app-icon.png',
     color: 'from-onyx-purple to-fuchsia-900',
     type: 'blade-hero',
     shape: 'obsidian-shape-2'

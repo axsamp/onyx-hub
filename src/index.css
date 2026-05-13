@@ -107,11 +107,34 @@
     transform: scale(0.98);
   }
 
-  .glass-pill {
-    background-color: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 9999px;
+  .pulse-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 120px;
+    background: linear-gradient(90deg, transparent, rgba(192, 132, 252, 0.03), rgba(192, 132, 252, 0.08), rgba(192, 132, 252, 0.03), transparent);
+    z-index: 5;
+    pointer-events: none;
+    animation: onyx-pulse 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  @keyframes onyx-pulse {
+    0% { transform: translateX(-200%); }
+    100% { transform: translateX(600%); }
+  }
+
+  .glass-icon-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    color: var(--color-onyx-purple);
+    opacity: 0.04;
+    filter: blur(1px);
+    pointer-events: none;
+    z-index: 2;
   }
 }
 

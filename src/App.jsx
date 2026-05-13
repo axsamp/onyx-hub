@@ -29,7 +29,7 @@ const apps = [
     id: 'itinerary',
     name: 'Itinerary Command',
     url: 'https://axsamp.github.io/onyx-itinerary/',
-    screenshot: '/onyx-itinerary.png',
+    icon: Map,
     color: 'from-onyx-purple to-indigo-900',
     type: 'blade-hero',
     shape: 'obsidian-shape-1'
@@ -38,7 +38,7 @@ const apps = [
     id: 'budget',
     name: 'Budget Buffer',
     url: 'https://axsamp.github.io/budget-buffer/',
-    screenshot: '/budget-buffer.png',
+    icon: Wallet,
     color: 'from-onyx-purple to-purple-900',
     type: 'blade-deck-left',
     shape: 'obsidian-shape-2'
@@ -47,7 +47,7 @@ const apps = [
     id: 'converter',
     name: 'Onyx Converter',
     url: 'https://axsamp.github.io/onyx-converter/',
-    screenshot: '/onyx-converter.png',
+    icon: Calculator,
     color: 'from-onyx-purple to-violet-900',
     type: 'blade-deck-right',
     shape: 'obsidian-shape-1'
@@ -56,7 +56,7 @@ const apps = [
     id: 'stamps',
     name: 'Stamp Collector',
     url: 'https://axsamp.github.io/onyx-stamps/',
-    screenshot: '/onyx-stamps.png',
+    icon: Images,
     color: 'from-onyx-purple to-fuchsia-900',
     type: 'blade-hero',
     shape: 'obsidian-shape-2'
@@ -64,6 +64,7 @@ const apps = [
 ];
 
 const AppCard = ({ app, delay }) => {
+  const Icon = app.icon;
   const { scrollY } = useScroll();
   // Parallax offset for the image inside the card
   const yRange = [0, 1000];
@@ -92,9 +93,17 @@ const AppCard = ({ app, delay }) => {
         app.type === 'blade-deck-right' && "w-[90%] h-[240px] mb-12 self-end z-20 shadow-[0_-20px_50px_rgba(0,0,0,0.5)]"
       )}
     >
+      {/* Generative Pulse Line */}
+      <div className="pulse-line" style={{ animationDelay: `${delay}s` }} />
+
+      {/* Floating Glass Icon Background */}
+      <div className="glass-icon-bg">
+        <Icon strokeWidth={0.5} className="w-full h-full" />
+      </div>
+
       {/* Background Gradient with Scanning Effect */}
       <div className={cn(
-        "absolute inset-0 z-0 bg-gradient-to-br opacity-20",
+        "absolute inset-0 z-0 bg-gradient-to-br opacity-10",
         app.color
       )}>
         <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] bg-[length:100%_4px,3px_100%] pointer-events-none opacity-30" />

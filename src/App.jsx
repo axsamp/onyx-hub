@@ -103,7 +103,7 @@ const AppCard = ({ app, delay }) => {
           transition={{ delay: delay + 0.2, duration: 0.8 }}
           src={`${import.meta.env.BASE_URL}${app.iconSrc}`} 
           alt={app.name}
-          className="max-w-[120px] max-h-[120px] object-contain drop-shadow-[0_0_30px_rgba(192,132,252,0.3)] group-hover:scale-110 transition-transform duration-500"
+          className="max-w-[120px] max-h-[120px] object-contain grayscale-[100%] brightness-[1.4] contrast-[1.2] drop-shadow-[0_0_20px_rgba(192,132,252,0.5)] group-hover:scale-110 group-hover:brightness-[1.6] transition-all duration-500"
         />
       </div>
 

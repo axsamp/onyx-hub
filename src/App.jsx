@@ -92,15 +92,12 @@ const AppCard = ({ app, delay }) => {
         app.type === 'blade-deck-right' && "w-[90%] h-[240px] mb-12 self-end z-20 shadow-[0_-20px_50px_rgba(0,0,0,0.5)]"
       )}
     >
-      {/* Background Screenshot with Parallax & Scanning Effect */}
-      <div className="absolute inset-0 z-0">
-        <motion.img 
-          style={{ y: smoothImageY }}
-          src={app.screenshot} 
-          alt={app.name}
-          className="w-full h-[120%] object-cover object-top transition-transform duration-1000 group-hover:scale-105 opacity-30 group-hover:opacity-50 grayscale-[80%] group-hover:grayscale-0"
-        />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] bg-[length:100%_4px,3px_100%] pointer-events-none opacity-20" />
+      {/* Background Gradient with Scanning Effect */}
+      <div className={cn(
+        "absolute inset-0 z-0 bg-gradient-to-br opacity-20",
+        app.color
+      )}>
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] bg-[length:100%_4px,3px_100%] pointer-events-none opacity-30" />
         <div className="absolute inset-0 bg-gradient-to-t from-onyx-bg via-transparent to-transparent" />
       </div>
 

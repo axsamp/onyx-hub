@@ -29,7 +29,7 @@ const apps = [
     id: 'itinerary',
     name: 'Itinerary Command',
     url: 'https://axsamp.github.io/onyx-itinerary/',
-    icon: Map,
+    iconSrc: 'onyx-itinerary.png',
     color: 'from-onyx-purple to-indigo-900',
     type: 'blade-hero',
     shape: 'obsidian-shape-1'
@@ -38,7 +38,7 @@ const apps = [
     id: 'budget',
     name: 'Budget Buffer',
     url: 'https://axsamp.github.io/budget-buffer/',
-    icon: Wallet,
+    iconSrc: 'budget-buffer.png',
     color: 'from-onyx-purple to-purple-900',
     type: 'blade-deck-left',
     shape: 'obsidian-shape-2'
@@ -47,7 +47,7 @@ const apps = [
     id: 'converter',
     name: 'Onyx Converter',
     url: 'https://axsamp.github.io/onyx-converter/',
-    icon: Calculator,
+    iconSrc: 'onyx-converter.png',
     color: 'from-onyx-purple to-violet-900',
     type: 'blade-deck-right',
     shape: 'obsidian-shape-1'
@@ -56,7 +56,7 @@ const apps = [
     id: 'stamps',
     name: 'Stamp Collector',
     url: 'https://axsamp.github.io/onyx-stamps/',
-    icon: Images,
+    iconSrc: 'onyx-stamps.png',
     color: 'from-onyx-purple to-fuchsia-900',
     type: 'blade-hero',
     shape: 'obsidian-shape-2'
@@ -64,7 +64,6 @@ const apps = [
 ];
 
 const AppCard = ({ app, delay }) => {
-  const Icon = app.icon;
   const { scrollY } = useScroll();
   // Parallax offset for the image inside the card
   const yRange = [0, 1000];
@@ -96,17 +95,24 @@ const AppCard = ({ app, delay }) => {
       {/* Generative Pulse Line */}
       <div className="pulse-line" style={{ animationDelay: `${delay}s` }} />
 
-      {/* Floating Glass Icon Background */}
-      <div className="glass-icon-bg">
-        <Icon strokeWidth={0.5} className="w-full h-full" />
+      {/* Actual App Icon - Centered & Premium */}
+      <div className="absolute inset-0 z-10 flex items-center justify-center p-12">
+        <motion.img 
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: delay + 0.2, duration: 0.8 }}
+          src={`${import.meta.env.BASE_URL}${app.iconSrc}`} 
+          alt={app.name}
+          className="max-w-[120px] max-h-[120px] object-contain drop-shadow-[0_0_30px_rgba(192,132,252,0.3)] group-hover:scale-110 transition-transform duration-500"
+        />
       </div>
 
       {/* Background Gradient with Scanning Effect */}
       <div className={cn(
-        "absolute inset-0 z-0 bg-gradient-to-br opacity-10",
+        "absolute inset-0 z-0 bg-gradient-to-br opacity-5",
         app.color
       )}>
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] bg-[length:100%_4px,3px_100%] pointer-events-none opacity-30" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] bg-[length:100%_4px,3px_100%] pointer-events-none opacity-20" />
         <div className="absolute inset-0 bg-gradient-to-t from-onyx-bg via-transparent to-transparent" />
       </div>
 

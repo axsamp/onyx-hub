@@ -76,11 +76,11 @@ const AppCard = ({ app, delay }) => {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.01, y: -5 }}
-      whileTap={{ 
-        scale: 0.97, 
-        rotateX: -5, 
+      whileTap={{
+        scale: 0.97,
+        rotateX: -5,
         rotateY: 2,
-        transition: { type: "spring", stiffness: 500, damping: 25 } 
+        transition: { type: "spring", stiffness: 500, damping: 25 }
       }}
       onPointerDown={() => triggerHaptic('light')}
       transition={{ delay, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
@@ -95,16 +95,16 @@ const AppCard = ({ app, delay }) => {
       {/* Generative Pulse Line */}
       <div className="pulse-line" style={{ animationDelay: `${delay}s` }} />
 
-      {/* Actual App Icon - Centered & Premium */}
-      <div className="absolute inset-0 z-10 flex items-center justify-center p-12">
-        <motion.img 
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: delay + 0.2, duration: 0.8 }}
-          src={`${import.meta.env.BASE_URL}${app.iconSrc}`} 
-          alt={app.name}
-          className="max-w-[120px] max-h-[120px] object-contain grayscale-[100%] brightness-[1.5] contrast-[1.2] mix-blend-screen group-hover:scale-110 group-hover:brightness-[1.8] transition-all duration-500"
-        />
+      {/* Technical Status Strings */}
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none opacity-20">
+        <div className="flex flex-col items-center gap-1.5 translate-y-[-10%]">
+          <span className="text-[7px] font-black tracking-[0.8em] text-white/50 uppercase">Sys_Link_Ok</span>
+          <div className="flex items-center gap-2">
+            <div className="w-1 h-1 rounded-full bg-onyx-purple shadow-[0_0_8px_rgba(192,132,252,0.8)]" />
+            <span className="text-[7px] font-black tracking-[0.8em] text-onyx-purple uppercase">Secure_Stream</span>
+          </div>
+          <span className="text-[7px] font-black tracking-[0.8em] text-white/50 uppercase">Prot_V4_Enc</span>
+        </div>
       </div>
 
       {/* Background Gradient with Scanning Effect */}
@@ -143,7 +143,7 @@ const AppCard = ({ app, delay }) => {
 export default function App() {
   const [weather, setWeather] = React.useState({ temp: '--', condition: 'Updating...' });
   const { scrollY } = useScroll();
-  
+
   // Direct mapping of scroll to style values for peak performance
   const headerMaxWidth = useTransform(scrollY, [0, 80], ["512px", "64px"]);
   const headerPadding = useTransform(scrollY, [0, 80], ["16px", "8px"]);
@@ -151,7 +151,7 @@ export default function App() {
   const headerX = useTransform(scrollY, [0, 80], [0, -130]);
   const contentOpacity = useTransform(scrollY, [0, 40], [1, 0]);
   const contentScale = useTransform(scrollY, [0, 80], [1, 0.8]);
-  
+
   // Smooth out the motion values with a spring
   const springConfig = { stiffness: 400, damping: 40, mass: 1, restDelta: 0.001 };
   const smoothMaxWidth = useSpring(headerMaxWidth, springConfig);
@@ -167,7 +167,7 @@ export default function App() {
         const data = await res.json();
         const temp = Math.round(data.current_weather.temperature);
         const code = data.current_weather.weathercode;
-        
+
         // Simple mapping for weather codes
         const conditions = {
           0: 'Clear Skies',
@@ -181,9 +181,9 @@ export default function App() {
           71: 'Snowy',
           95: 'Thunderstorms'
         };
-        
-        setWeather({ 
-          temp: `${temp}°`, 
+
+        setWeather({
+          temp: `${temp}°`,
           condition: conditions[code] || 'Clear Skies'
         });
       } catch (e) {
@@ -216,7 +216,7 @@ export default function App() {
           <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/10 shadow-2xl">
             <img src={`${import.meta.env.BASE_URL}icon.png`} alt="Onyx Hub" className="w-full h-full object-cover" />
           </div>
-          
+
           <motion.div
             style={{ opacity: smoothOpacity, scale: contentScale }}
             className="flex flex-col"
@@ -263,7 +263,7 @@ export default function App() {
               {weather.condition}
             </p>
           </div>
-          
+
           <div className="flex items-center gap-6 relative z-10">
             <div className="flex items-baseline gap-1">
               <span className="text-4xl font-black tracking-tighter text-white">{weather.temp}</span>

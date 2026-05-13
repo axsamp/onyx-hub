@@ -199,7 +199,7 @@ export default function App() {
       >
         <div className="flex items-center gap-4 min-w-max">
           <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/10 shadow-2xl">
-            <img src="/icon.png" alt="Onyx Hub" className="w-full h-full object-cover" />
+            <img src={`${import.meta.env.BASE_URL}icon.png`} alt="Onyx Hub" className="w-full h-full object-cover" />
           </div>
           
           <motion.div

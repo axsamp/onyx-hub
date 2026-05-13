@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'MaruMonica';
+  src: url('/fonts/MaruMonica.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --color-onyx-bg: #000000;
+  --color-onyx-card: #0A0A0A;
+  --color-onyx-border: rgba(255, 255, 255, 0.08);
+  --color-onyx-purple: #C084FC;
+  --color-onyx-purple-glow: rgba(192, 132, 252, 0.25);
+  --color-onyx-text: #FFFFFF;
+  --color-onyx-muted: #71717A;
+  
+  --font-sans: "MaruMonica", "Inter", -apple-system, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --radius-onyx: 0.5rem;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-onyx-bg);
+    color: var(--color-onyx-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+    letter-spacing: 0.05em;
+    position: relative;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle at 2px 2px, rgba(192, 132, 252, 0.05) 1px, transparent 0);
+    background-size: 32px 32px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: url("https://grainy-gradients.vercel.app/noise.svg");
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 2;
+    filter: contrast(150%) brightness(150%);
+  }
+}
+
+@layer components {
+  .perspective-2000 {
+    perspective: 2000px;
+  }
+
+  .onyx-card {
+    background-color: var(--color-onyx-card);
+    border: 1px solid var(--color-onyx-border);
+    transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+    transform-style: preserve-3d;
+  }
+
+  .obsidian-shape-1, .obsidian-shape-2 {
+    border-radius: 4px;
+  }
+
+  .onyx-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    pointer-events: none;
+    margin: 1px;
+    border-radius: 3px;
+  }
+
+  .onyx-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .onyx-card:hover::before {
+    opacity: 1;
+  }
+
+  .onyx-card:hover {
+    border-color: rgba(192, 132, 252, 0.3);
+    box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.5), 0 0 20px rgba(192, 132, 252, 0.1);
+  }
+
+  .onyx-card:active {
+    transform: scale(0.98);
+  }
+
+  .glass-pill {
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+  }
+}
+
+/* Hide scrollbar */
+::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

@@ -271,19 +271,23 @@ const Blueprint = ({ type }) => {
 };
 
 const AppCard = ({ app, delay }) => {
+  const [isLaunching, setIsLaunching] = React.useState(false);
+
   return (
     <motion.a
       href={app.url}
       initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ scale: 1.01, y: -5 }}
-      whileTap={{
-        scale: 0.97,
-        rotateX: -5,
-        rotateY: 2,
-        transition: { type: "spring", stiffness: 500, damping: 25 }
+      animate={{ 
+        opacity: isLaunching ? 0.6 : 1,
+        scale: isLaunching ? 0.98 : 1,
+        y: 0 
       }}
-      onPointerDown={() => triggerHaptic('light')}
+      whileHover={{ scale: 1.01, y: -5 }}
+      whileTap={{ scale: 0.98 }}
+      onPointerDown={() => {
+        triggerHaptic('medium');
+        setIsLaunching(true);
+      }}
       transition={{ delay, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
         "onyx-card group block perspective-2000 relative overflow-hidden",

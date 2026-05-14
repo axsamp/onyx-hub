@@ -1,14 +1,6 @@
 import React from 'react';
 import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion';
-import {
-  Wallet,
-  Calculator,
-  Map,
-  Images,
-  ArrowUpRight,
-  Cloud,
-  Plane
-} from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -49,7 +41,7 @@ const apps = [
   },
   {
     id: 'converter',
-    name: 'Onyx Converter',
+    name: 'Unit Converter',
     url: 'https://axsamp.github.io/onyx-converter/',
     color: 'from-onyx-purple to-violet-900',
     type: 'blade-deck-right',
@@ -72,31 +64,50 @@ const Blueprint = ({ type }) => {
   
   if (type === 'radar') return (
     <svg className={blueprintStyles} viewBox="0 0 100 100">
-      <circle cx="50" cy="50" r="45" strokeWidth="0.1" strokeDasharray="1 2" />
-      <circle cx="50" cy="50" r="35" strokeWidth="0.2" />
+      {/* Static Detail Rings */}
+      <circle cx="50" cy="50" r="48" strokeWidth="0.1" strokeDasharray="1 3" className="opacity-30" />
+      <circle cx="50" cy="50" r="35" strokeWidth="0.05" strokeDasharray="4 2" className="opacity-40" />
+      <circle cx="50" cy="50" r="12" strokeWidth="0.05" />
       
-      {/* Compass Needle */}
-      <motion.path 
-        d="M50 15 L55 50 L50 85 L45 50 Z" 
-        strokeWidth="0.3" 
-        animate={{ rotate: [0, 5, -5, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      {/* Cardinal Labels */}
+      <g className="fill-onyx-purple text-[5px] font-black opacity-60" textAnchor="middle">
+        <text x="50" y="8">N</text>
+        <text x="92" y="52">E</text>
+        <text x="50" y="96">S</text>
+        <text x="8" y="52">W</text>
+      </g>
+
+      <defs>
+        <linearGradient id="needleGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="currentColor" stopOpacity="1" />
+          <stop offset="50%" stopColor="currentColor" stopOpacity="0.4" />
+          <stop offset="100%" stopColor="currentColor" stopOpacity="1" />
+        </linearGradient>
+      </defs>
+
+      {/* Compass Needle - High Precision */}
+      <motion.g
+        animate={{ rotate: [0, 15, -10, 5, 0] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         className="origin-center"
-      />
-      
-      {/* Cardinal Points */}
-      <text x="50" y="10" className="fill-onyx-purple text-[5px] font-black" textAnchor="middle">N</text>
-      <text x="92" y="52" className="fill-onyx-purple text-[5px] font-black" textAnchor="middle">E</text>
-      <text x="50" y="95" className="fill-onyx-purple text-[5px] font-black" textAnchor="middle">S</text>
-      <text x="8" y="52" className="fill-onyx-purple text-[5px] font-black" textAnchor="middle">W</text>
+      >
+        <path 
+          d="M50 15 L53 50 L50 85 L47 50 Z" 
+          strokeWidth="0.3" 
+          className="opacity-90"
+          fill="url(#needleGradient)"
+        />
+        <circle cx="50" cy="50" r="1.5" fill="currentColor" />
+      </motion.g>
 
       {/* Degree Ticks */}
-      {Array.from({ length: 72 }).map((_, i) => (
+      {Array.from({ length: 36 }).map((_, i) => (
         <line 
           key={i} 
-          x1="50" y1="12" x2="50" y2={i % 9 === 0 ? 18 : 14} 
+          x1="50" y1="2" x2="50" y2={i % 9 === 0 ? 8 : 4} 
           strokeWidth="0.1" 
-          transform={`rotate(${i * 5} 50 50)`} 
+          transform={`rotate(${i * 10} 50 50)`} 
+          className="opacity-40"
         />
       ))}
     </svg>
@@ -105,107 +116,154 @@ const Blueprint = ({ type }) => {
     const [numbers, setNumbers] = React.useState([]);
     React.useEffect(() => {
       const timer = setInterval(() => {
-        const count = Math.random() > 0.5 ? 2 : 1;
-        setNumbers(Array.from({ length: count }, (_, i) => ({
+        setNumbers(Array.from({ length: 3 }, (_, i) => ({
           id: Math.random(),
-          val: Math.floor(Math.random() * 10).toString(),
-          x: 30 + Math.random() * 40,
-          y: 35 + Math.random() * 35,
-          delay: i * 1.0 // Balanced stagger
+          val: (Math.random() * 99).toFixed(2),
+          x: 25 + Math.random() * 50, // Centered range
+          y: 30 + Math.random() * 40, // Centered range
+          delay: i * 0.8
         })));
-      }, 4000); // 4s cycle
+      }, 3000);
       return () => clearInterval(timer);
     }, []);
 
     return (
       <svg className={blueprintStyles} viewBox="0 0 100 100">
-        {Array.from({ length: 10 }).map((_, i) => (
+        {/* Main Grid */}
+        {Array.from({ length: 11 }).map((_, i) => (
           <React.Fragment key={i}>
-            <line x1="0" y1={i * 10} x2="100" y2={i * 10} strokeWidth="0.05" />
-            <line x1={i * 10} y1="0" x2={i * 10} y2="100" strokeWidth="0.05" />
+            <line x1="0" y1={i * 10} x2="100" y2={i * 10} strokeWidth="0.05" className="opacity-20" />
+            <line x1={i * 10} y1="0" x2={i * 10} y2="100" strokeWidth="0.05" className="opacity-20" />
           </React.Fragment>
         ))}
-        <rect x="20" y="20" width="60" height="60" strokeWidth="0.3" strokeDasharray="2 2" />
         
-        {/* Balanced Rhythmic Random Numbers */}
-        <g className="fill-onyx-purple text-[8px] font-black">
+        {/* Scanning Beam */}
+        <motion.line
+          x1="0" x2="100"
+          animate={{ y: [0, 100, 0] }}
+          transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+          strokeWidth="0.3"
+          className="opacity-40"
+        />
+
+        {/* Ledger/Data Stream - Constrained to Grid */}
+        <g className="fill-onyx-purple text-[4px] font-mono opacity-60" textAnchor="middle">
           <AnimatePresence>
             {numbers.map((n) => (
               <motion.text
                 key={n.id}
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 0.6, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.1 }}
-                transition={{ 
-                  duration: 0.4, // Snappy entry
-                  delay: n.delay,
-                  exit: { duration: 1.5 } // Lingering exit
-                }}
+                initial={{ opacity: 0, y: n.y - 2 }}
+                animate={{ opacity: 1, y: n.y }}
+                exit={{ opacity: 0, y: n.y + 2 }}
+                transition={{ duration: 0.5 }}
                 x={n.x}
                 y={n.y}
-                textAnchor="middle"
               >
-                {n.val}
+                {`DATA_${n.val}`}
               </motion.text>
             ))}
           </AnimatePresence>
         </g>
 
-        <path d="M10 10 L25 10 M10 10 L10 25" strokeWidth="0.4" />
-        <path d="M75 90 L90 90 M90 90 L90 75" strokeWidth="0.4" />
+        {/* Mini Chart */}
+        <motion.path
+          d="M70 85 L75 80 L80 82 L85 75 L90 78 L95 70"
+          fill="none"
+          strokeWidth="0.2"
+          strokeDasharray="100"
+          animate={{ strokeDashoffset: [100, 0, 100] }}
+          transition={{ duration: 10, repeat: Infinity }}
+        />
+
+        <rect x="5" y="5" width="90" height="90" strokeWidth="0.2" strokeDasharray="1 4" />
+        <path d="M5 15 L5 5 L15 5 M85 5 L95 5 L95 15 M95 85 L95 95 L85 95 M15 95 L5 95 L5 85" strokeWidth="0.5" />
       </svg>
     );
   }
   if (type === 'matrix') return (
     <svg className={blueprintStyles} viewBox="0 0 100 100">
-      <path d="M18 32 L38 32 L38 68 L18 68 Z" strokeWidth="0.2" />
-      <path d="M62 32 L82 32 L82 68 L62 68 Z" strokeWidth="0.2" />
+      {/* Hexagonal Frame */}
+      <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" strokeWidth="0.1" strokeDasharray="2 2" className="opacity-30" />
       
-      {/* Animated Transfer Arrow (One-Way Loop) */}
-      <motion.g
-        animate={{ 
-          x: [-8, 34],
-          opacity: [0, 1, 1, 0]
-        }}
-        transition={{ 
-          duration: 4, 
-          repeat: Infinity, 
-          ease: "linear",
-          times: [0, 0.1, 0.7, 0.8]
-        }}
-      >
-        <path d="M40 50 L48 50" strokeWidth="0.4" strokeDasharray="1 1" />
-        <path d="M44 47 L48 50 L44 53" strokeWidth="0.4" />
-      </motion.g>
-
-      <circle cx="50" cy="50" r="15" strokeWidth="0.1" strokeDasharray="1 1" />
+      {/* Logic Gates/Nodes */}
+      <rect x="25" y="40" width="10" height="20" strokeWidth="0.2" className="opacity-40" />
+      <rect x="65" y="40" width="10" height="20" strokeWidth="0.2" className="opacity-40" />
+      <circle cx="50" cy="50" r="8" strokeWidth="0.2" strokeDasharray="1 1" />
       
-      {Array.from({ length: 3 }).map((_, i) => (
-        <React.Fragment key={i}>
-          <motion.line 
-            x1={20} y1={38 + i * 12} x2={36} y2={38 + i * 12} 
-            strokeWidth="0.1"
-            animate={{ opacity: [0.2, 0.8, 0.2] }}
-            transition={{ duration: 2, delay: i * 0.5, repeat: Infinity }}
-          />
-          <motion.line 
-            x1={64} y1={38 + i * 12} x2={80} y2={38 + i * 12} 
-            strokeWidth="0.1"
-            animate={{ opacity: [0.8, 0.2, 0.8] }}
-            transition={{ duration: 2, delay: i * 0.5, repeat: Infinity }}
-          />
-        </React.Fragment>
+      {/* Flow Particles */}
+      {[0, 1, 2].map((i) => (
+        <motion.circle
+          key={i}
+          r="0.5"
+          fill="currentColor"
+          animate={{ 
+            cx: [35, 50, 65],
+            cy: [50, 50, 50],
+            opacity: [0, 1, 0]
+          }}
+          transition={{ 
+            duration: 2, 
+            repeat: Infinity, 
+            delay: i * 0.6,
+            ease: "easeInOut"
+          }}
+        />
       ))}
+
+      {/* Binary Stream */}
+      <g className="fill-onyx-purple text-[2.5px] font-mono opacity-40">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <text key={i} x="15" y={30 + i * 8}>{Math.random() > 0.5 ? '1010' : '0101'}</text>
+        ))}
+        {Array.from({ length: 6 }).map((_, i) => (
+          <text key={i} x="75" y={30 + i * 8}>{Math.random() > 0.5 ? '1100' : '0011'}</text>
+        ))}
+      </g>
+
+      <motion.path
+        d="M35 50 L42 50 M58 50 L65 50"
+        strokeWidth="0.3"
+        animate={{ opacity: [0.2, 1, 0.2] }}
+        transition={{ duration: 1.5, repeat: Infinity }}
+      />
     </svg>
   );
   if (type === 'celestial') return (
     <svg className={blueprintStyles} viewBox="0 0 100 100">
-      <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" strokeWidth="0.2" />
-      <path d="M50 15 L80 30 L80 70 L50 85 L20 70 L20 30 Z" strokeWidth="0.1" strokeDasharray="1 1" />
-      <circle cx="50" cy="50" r="10" strokeWidth="0.2" />
-      <path d="M50 5 L50 95 M10 25 L90 75 M10 75 L90 25" strokeWidth="0.1" />
-      {Array.from({ length: 6 }).map((_, i) => (
-        <circle key={i} cx={50 + 40 * Math.cos(i * Math.PI / 3 + Math.PI / 6)} cy={50 + 40 * Math.sin(i * Math.PI / 3 + Math.PI / 6)} r="1.5" strokeWidth="0.1" />
+      {/* Rotating Orbital Rings */}
+      <motion.circle 
+        cx="50" cy="50" r="40" strokeWidth="0.05" strokeDasharray="4 8"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        className="origin-center opacity-30"
+      />
+      <motion.circle 
+        cx="50" cy="50" r="30" strokeWidth="0.05" strokeDasharray="2 4"
+        animate={{ rotate: -360 }}
+        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+        className="origin-center opacity-40"
+      />
+      
+      {/* Constellation Lines - More geometric/technical */}
+      <path d="M25 25 L50 15 L75 25 L85 50 L75 75 L50 85 L25 75 L15 50 Z" strokeWidth="0.05" strokeDasharray="1 4" className="opacity-30" />
+      <path d="M35 35 L50 25 L65 35 L65 65 L50 75 L35 65 Z" strokeWidth="0.1" strokeDasharray="2 2" className="opacity-40" />
+      
+      {/* Central Core */}
+      <circle cx="50" cy="50" r="5" strokeWidth="0.2" />
+      <motion.circle 
+        cx="50" cy="50" r="8" strokeWidth="0.05" 
+        animate={{ r: [8, 10, 8], opacity: [0.3, 0.6, 0.3] }}
+        transition={{ duration: 4, repeat: Infinity }}
+      />
+
+      {/* Perimeter Markers */}
+      {Array.from({ length: 4 }).map((_, i) => (
+        <rect 
+          key={i} 
+          x="48" y="0" width="4" height="0.5" 
+          transform={`rotate(${i * 90} 50 50)`} 
+          className="opacity-60"
+        />
       ))}
     </svg>
   );
@@ -213,12 +271,6 @@ const Blueprint = ({ type }) => {
 };
 
 const AppCard = ({ app, delay }) => {
-  const { scrollY } = useScroll();
-  // Parallax offset for the image inside the card
-  const yRange = [0, 1000];
-  const imageY = useTransform(scrollY, yRange, [0, -60]);
-  const smoothImageY = useSpring(imageY, { stiffness: 100, damping: 30 });
-
   return (
     <motion.a
       href={app.url}
@@ -265,29 +317,46 @@ const AppCard = ({ app, delay }) => {
 
       {/* Content */}
       <div className="relative z-20 h-full p-8 flex flex-col">
-        {/* Text Area - Blade Typography (Moved to Top Left) */}
-        <motion.div 
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="relative group-hover:translate-x-2 transition-transform duration-500"
-        >
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-onyx-purple shadow-[0_0_12px_rgba(192,132,252,1)]" />
-            <p className="text-[12px] text-onyx-purple font-black uppercase tracking-[0.5em]">
-              {app.id}
-            </p>
+        {/* Top Section - ID and Status */}
+        <div className="flex justify-between items-start">
+          <motion.div 
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="relative group-hover:translate-x-2 transition-transform duration-500"
+          >
+            <div className="flex items-center gap-3 mb-1">
+
+              <p className="text-[10px] text-onyx-purple font-black uppercase tracking-[0.4em]">
+                ONYX
+              </p>
+            </div>
+            <div className="flex flex-col">
+              <h2 className="text-xl font-black uppercase tracking-wide leading-none text-white group-hover:text-onyx-purple transition-colors duration-500">
+                {app.name.split(' ')[0]}
+              </h2>
+              <span className="text-[12px] font-bold uppercase tracking-[0.3em] text-onyx-muted group-hover:text-onyx-purple/60 transition-colors duration-500 mt-1">
+                {app.name.split(' ').slice(1).join(' ')}
+              </span>
+            </div>
+          </motion.div>
+
+          <div className="text-[8px] font-mono text-onyx-muted opacity-40 uppercase tracking-widest text-right">
+            SEC_LEVEL: 05<br />
+            STATUS: ACTIVE
           </div>
-        </motion.div>
+        </div>
 
         {/* Bottom Spacer */}
-        <div className="mt-auto" />
+        <div className="mt-auto flex justify-between items-end">
+          <div className="w-8 h-px bg-onyx-purple/20 group-hover:w-16 transition-all duration-700" />
+          <ArrowUpRight className="w-4 h-4 text-onyx-purple opacity-0 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-500" />
+        </div>
       </div>
     </motion.a>
   );
 };
 
 export default function App() {
-  const [weather, setWeather] = React.useState({ temp: '--', condition: 'Updating...' });
   const { scrollY } = useScroll();
 
   // Direct mapping of scroll to style values for peak performance
@@ -306,42 +375,7 @@ export default function App() {
   const smoothX = useSpring(headerX, springConfig);
   const smoothOpacity = useSpring(contentOpacity, springConfig);
 
-  React.useEffect(() => {
-    const fetchWeather = async () => {
-      try {
-        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=35.6895&longitude=139.6917&current_weather=true');
-        const data = await res.json();
-        const temp = Math.round(data.current_weather.temperature);
-        const code = data.current_weather.weathercode;
 
-        // Simple mapping for weather codes
-        const conditions = {
-          0: 'Clear Skies',
-          1: 'Mainly Clear',
-          2: 'Partly Cloudy',
-          3: 'Overcast',
-          45: 'Foggy',
-          48: 'Depositing Rime Fog',
-          51: 'Light Drizzle',
-          61: 'Rainy',
-          71: 'Snowy',
-          95: 'Thunderstorms'
-        };
-
-        setWeather({
-          temp: `${temp}°`,
-          condition: conditions[code] || 'Clear Skies'
-        });
-      } catch (e) {
-        console.error('Weather fetch failed', e);
-        setWeather({ temp: '22°', condition: 'Clear Skies' });
-      }
-    };
-
-    fetchWeather();
-    const interval = setInterval(fetchWeather, 600000); // Update every 10 mins
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div className="min-h-screen bg-onyx-bg text-white p-4 md:p-6 flex flex-col items-center">
@@ -396,34 +430,7 @@ export default function App() {
           <AppCard key={app.id} app={app} delay={0.1 * (index + 1)} />
         ))}
 
-        {/* Tokyo Status Blade - Minimalist & Integrated */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="onyx-card p-6 flex items-center justify-between bg-onyx-purple/5 border-onyx-purple/20 obsidian-shape-1 h-[100px] overflow-hidden group hover:border-onyx-purple/40 transition-colors mt-8 relative"
-        >
-          <div className="flex flex-col gap-1 relative z-10">
-            <span className="text-[10px] font-black text-onyx-purple uppercase tracking-[0.6em]">Tokyo</span>
-            <p className="text-[10px] text-onyx-muted font-bold uppercase tracking-[0.4em]">
-              {weather.condition}
-            </p>
-          </div>
 
-          <div className="flex items-center gap-6 relative z-10">
-            <div className="flex items-baseline gap-1">
-              <span className="text-4xl font-black tracking-tighter text-white">{weather.temp}</span>
-              <span className="text-sm font-bold text-onyx-purple/60 uppercase">C</span>
-            </div>
-            <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-sm border border-white/5">
-              <div className="w-1.5 h-1.5 rounded-full bg-onyx-purple animate-pulse shadow-[0_0_8px_rgba(192,132,252,1)]" />
-              <span className="text-[8px] font-bold text-onyx-purple uppercase tracking-widest">Live</span>
-            </div>
-          </div>
-
-          {/* Background Grid Pattern */}
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(192,132,252,0.03)_1px,transparent_1px)] bg-[size:100%_20px] pointer-events-none opacity-50" />
-        </motion.div>
       </div>
 
       {/* Footer */}

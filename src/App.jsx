@@ -362,7 +362,24 @@ const AppCard = ({ app, delay }) => {
 
 export default function App() {
   const [isIslandExpanded, setIsIslandExpanded] = React.useState(false);
+  const [systemBudget, setSystemBudget] = React.useState(() => {
+    return localStorage.getItem('onyx_total_budget') || '0';
+  });
   const { scrollY } = useScroll();
+
+  // Listen for cross-app storage updates
+  React.useEffect(() => {
+    const handleStorageChange = () => {
+      setSystemBudget(localStorage.getItem('onyx_total_budget') || '0');
+    };
+    window.addEventListener('storage', handleStorageChange);
+    // Also poll occasionally in case of same-window navigation updates
+    const interval = setInterval(handleStorageChange, 2000);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
 
   // Scroll-based transforms for the island when NOT expanded
   const islandX = useTransform(scrollY, [0, 80], [0, -110]);
@@ -437,7 +454,7 @@ export default function App() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white/5 rounded-2xl p-3 border border-white/5">
                     <span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">Total Trip Cost</span>
-                    <span className="text-sm font-black text-onyx-purple">¥142,800</span>
+                    <span className="text-sm font-black text-onyx-purple">¥{parseInt(systemBudget).toLocaleString()}</span>
                   </div>
                   <div className="bg-white/5 rounded-2xl p-3 border border-white/5">
                     <span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">Signal Status</span>

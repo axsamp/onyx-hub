@@ -18,9 +18,13 @@ function cn(...inputs) {
 
 // Haptic trigger for supported devices
 const triggerHaptic = (type = 'light') => {
-  if (typeof navigator !== 'undefined' && navigator.vibrate) {
-    if (type === 'light') navigator.vibrate(10);
-    else if (type === 'medium') navigator.vibrate(20);
+  try {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      if (type === 'light') navigator.vibrate(10);
+      else if (type === 'medium') navigator.vibrate(20);
+    }
+  } catch (e) {
+    // Ignore vibration failures (usually due to lack of user gesture)
   }
 };
 
@@ -29,39 +33,184 @@ const apps = [
     id: 'itinerary',
     name: 'Itinerary Command',
     url: 'https://axsamp.github.io/onyx-itinerary/',
-    iconSrc: 'itinerary-app-icon.png',
     color: 'from-onyx-purple to-indigo-900',
     type: 'blade-hero',
-    shape: 'obsidian-shape-1'
+    shape: 'obsidian-shape-1',
+    blueprint: 'radar'
   },
   {
     id: 'budget',
     name: 'Budget Buffer',
     url: 'https://axsamp.github.io/budget-buffer/',
-    iconSrc: 'budget-app-icon.png',
     color: 'from-onyx-purple to-purple-900',
     type: 'blade-deck-left',
-    shape: 'obsidian-shape-2'
+    shape: 'obsidian-shape-2',
+    blueprint: 'data-grid'
   },
   {
     id: 'converter',
     name: 'Onyx Converter',
     url: 'https://axsamp.github.io/onyx-converter/',
-    iconSrc: 'converter-app-icon.png',
     color: 'from-onyx-purple to-violet-900',
     type: 'blade-deck-right',
-    shape: 'obsidian-shape-1'
+    shape: 'obsidian-shape-1',
+    blueprint: 'matrix'
   },
   {
     id: 'stamps',
     name: 'Stamp Collector',
     url: 'https://axsamp.github.io/onyx-stamps/',
-    iconSrc: 'stamps-app-icon.png',
     color: 'from-onyx-purple to-fuchsia-900',
     type: 'blade-hero',
-    shape: 'obsidian-shape-2'
+    shape: 'obsidian-shape-2',
+    blueprint: 'celestial'
   },
 ];
+
+const Blueprint = ({ type }) => {
+  const blueprintStyles = "w-full h-full opacity-[0.18] stroke-onyx-purple fill-none drop-shadow-[0_0_2px_#c084fc] drop-shadow-[0_0_8px_rgba(192,132,252,0.2)] hologram-blueprint";
+  
+  if (type === 'radar') return (
+    <svg className={blueprintStyles} viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="45" strokeWidth="0.1" strokeDasharray="1 2" />
+      <circle cx="50" cy="50" r="35" strokeWidth="0.2" />
+      
+      {/* Compass Needle */}
+      <motion.path 
+        d="M50 15 L55 50 L50 85 L45 50 Z" 
+        strokeWidth="0.3" 
+        animate={{ rotate: [0, 5, -5, 0] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        className="origin-center"
+      />
+      
+      {/* Cardinal Points */}
+      <text x="50" y="10" className="fill-onyx-purple text-[5px] font-black" textAnchor="middle">N</text>
+      <text x="92" y="52" className="fill-onyx-purple text-[5px] font-black" textAnchor="middle">E</text>
+      <text x="50" y="95" className="fill-onyx-purple text-[5px] font-black" textAnchor="middle">S</text>
+      <text x="8" y="52" className="fill-onyx-purple text-[5px] font-black" textAnchor="middle">W</text>
+
+      {/* Degree Ticks */}
+      {Array.from({ length: 72 }).map((_, i) => (
+        <line 
+          key={i} 
+          x1="50" y1="12" x2="50" y2={i % 9 === 0 ? 18 : 14} 
+          strokeWidth="0.1" 
+          transform={`rotate(${i * 5} 50 50)`} 
+        />
+      ))}
+    </svg>
+  );
+  if (type === 'data-grid') {
+    const [numbers, setNumbers] = React.useState([]);
+    React.useEffect(() => {
+      const timer = setInterval(() => {
+        const count = Math.random() > 0.5 ? 2 : 1;
+        setNumbers(Array.from({ length: count }, (_, i) => ({
+          id: Math.random(),
+          val: Math.floor(Math.random() * 10).toString(),
+          x: 30 + Math.random() * 40,
+          y: 35 + Math.random() * 35,
+          delay: i * 1.0 // Balanced stagger
+        })));
+      }, 4000); // 4s cycle
+      return () => clearInterval(timer);
+    }, []);
+
+    return (
+      <svg className={blueprintStyles} viewBox="0 0 100 100">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <React.Fragment key={i}>
+            <line x1="0" y1={i * 10} x2="100" y2={i * 10} strokeWidth="0.05" />
+            <line x1={i * 10} y1="0" x2={i * 10} y2="100" strokeWidth="0.05" />
+          </React.Fragment>
+        ))}
+        <rect x="20" y="20" width="60" height="60" strokeWidth="0.3" strokeDasharray="2 2" />
+        
+        {/* Balanced Rhythmic Random Numbers */}
+        <g className="fill-onyx-purple text-[8px] font-black">
+          <AnimatePresence>
+            {numbers.map((n) => (
+              <motion.text
+                key={n.id}
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 0.6, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.1 }}
+                transition={{ 
+                  duration: 0.4, // Snappy entry
+                  delay: n.delay,
+                  exit: { duration: 1.5 } // Lingering exit
+                }}
+                x={n.x}
+                y={n.y}
+                textAnchor="middle"
+              >
+                {n.val}
+              </motion.text>
+            ))}
+          </AnimatePresence>
+        </g>
+
+        <path d="M10 10 L25 10 M10 10 L10 25" strokeWidth="0.4" />
+        <path d="M75 90 L90 90 M90 90 L90 75" strokeWidth="0.4" />
+      </svg>
+    );
+  }
+  if (type === 'matrix') return (
+    <svg className={blueprintStyles} viewBox="0 0 100 100">
+      <path d="M18 32 L38 32 L38 68 L18 68 Z" strokeWidth="0.2" />
+      <path d="M62 32 L82 32 L82 68 L62 68 Z" strokeWidth="0.2" />
+      
+      {/* Animated Transfer Arrow (One-Way Loop) */}
+      <motion.g
+        animate={{ 
+          x: [-8, 34],
+          opacity: [0, 1, 1, 0]
+        }}
+        transition={{ 
+          duration: 4, 
+          repeat: Infinity, 
+          ease: "linear",
+          times: [0, 0.1, 0.7, 0.8]
+        }}
+      >
+        <path d="M40 50 L48 50" strokeWidth="0.4" strokeDasharray="1 1" />
+        <path d="M44 47 L48 50 L44 53" strokeWidth="0.4" />
+      </motion.g>
+
+      <circle cx="50" cy="50" r="15" strokeWidth="0.1" strokeDasharray="1 1" />
+      
+      {Array.from({ length: 3 }).map((_, i) => (
+        <React.Fragment key={i}>
+          <motion.line 
+            x1={20} y1={38 + i * 12} x2={36} y2={38 + i * 12} 
+            strokeWidth="0.1"
+            animate={{ opacity: [0.2, 0.8, 0.2] }}
+            transition={{ duration: 2, delay: i * 0.5, repeat: Infinity }}
+          />
+          <motion.line 
+            x1={64} y1={38 + i * 12} x2={80} y2={38 + i * 12} 
+            strokeWidth="0.1"
+            animate={{ opacity: [0.8, 0.2, 0.8] }}
+            transition={{ duration: 2, delay: i * 0.5, repeat: Infinity }}
+          />
+        </React.Fragment>
+      ))}
+    </svg>
+  );
+  if (type === 'celestial') return (
+    <svg className={blueprintStyles} viewBox="0 0 100 100">
+      <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" strokeWidth="0.2" />
+      <path d="M50 15 L80 30 L80 70 L50 85 L20 70 L20 30 Z" strokeWidth="0.1" strokeDasharray="1 1" />
+      <circle cx="50" cy="50" r="10" strokeWidth="0.2" />
+      <path d="M50 5 L50 95 M10 25 L90 75 M10 75 L90 25" strokeWidth="0.1" />
+      {Array.from({ length: 6 }).map((_, i) => (
+        <circle key={i} cx={50 + 40 * Math.cos(i * Math.PI / 3 + Math.PI / 6)} cy={50 + 40 * Math.sin(i * Math.PI / 3 + Math.PI / 6)} r="1.5" strokeWidth="0.1" />
+      ))}
+    </svg>
+  );
+  return null;
+};
 
 const AppCard = ({ app, delay }) => {
   const { scrollY } = useScroll();
@@ -95,46 +244,43 @@ const AppCard = ({ app, delay }) => {
       {/* Generative Pulse Line */}
       <div className="pulse-line" style={{ animationDelay: `${delay}s` }} />
 
-      {/* Technical Status Strings */}
-      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none opacity-20">
-        <div className="flex flex-col items-center gap-1.5 translate-y-[-10%]">
-          <span className="text-[7px] font-black tracking-[0.8em] text-white/50 uppercase">Sys_Link_Ok</span>
-          <div className="flex items-center gap-2">
-            <div className="w-1 h-1 rounded-full bg-onyx-purple shadow-[0_0_8px_rgba(192,132,252,0.8)]" />
-            <span className="text-[7px] font-black tracking-[0.8em] text-onyx-purple uppercase">Secure_Stream</span>
-          </div>
-          <span className="text-[7px] font-black tracking-[0.8em] text-white/50 uppercase">Prot_V4_Enc</span>
+      {/* Holographic Blueprint Background */}
+      <div className="absolute inset-0 z-10 p-12 overflow-hidden flex items-center justify-center">
+        <div className="w-full h-full max-w-[240px] max-h-[240px]">
+          <Blueprint type={app.blueprint} />
         </div>
       </div>
+
+      {/* Pure Obsidian Surface */}
+      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none" />
 
       {/* Background Gradient with Scanning Effect */}
       <div className={cn(
         "absolute inset-0 z-0 bg-gradient-to-br opacity-5",
         app.color
       )}>
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] bg-[length:100%_4px,3px_100%] pointer-events-none opacity-20" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%)] bg-[length:100%_4px] pointer-events-none opacity-40" />
         <div className="absolute inset-0 bg-gradient-to-t from-onyx-bg via-transparent to-transparent" />
       </div>
 
       {/* Content */}
-      <div className="relative z-20 h-full p-8 flex flex-col justify-between">
-        <div className="flex justify-end items-start">
-          <div className="w-10 h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-md">
-            <ArrowUpRight className="w-5 h-5 text-white" />
+      <div className="relative z-20 h-full p-8 flex flex-col">
+        {/* Text Area - Blade Typography (Moved to Top Left) */}
+        <motion.div 
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="relative group-hover:translate-x-2 transition-transform duration-500"
+        >
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-1.5 h-1.5 rounded-full bg-onyx-purple shadow-[0_0_12px_rgba(192,132,252,1)]" />
+            <p className="text-[12px] text-onyx-purple font-black uppercase tracking-[0.5em]">
+              {app.id}
+            </p>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Text Area - Blade Typography */}
-        <div className="mt-auto">
-          <div className="relative group-hover:translate-x-2 transition-transform duration-500">
-            <div className="flex items-center gap-3">
-              <div className="w-1.5 h-1.5 rounded-full bg-onyx-purple shadow-[0_0_12px_rgba(192,132,252,1)]" />
-              <p className="text-[12px] text-onyx-purple font-black uppercase tracking-[0.5em]">
-                {app.id}
-              </p>
-            </div>
-          </div>
-        </div>
+        {/* Bottom Spacer */}
+        <div className="mt-auto" />
       </div>
     </motion.a>
   );

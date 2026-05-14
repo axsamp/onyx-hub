@@ -35,15 +35,7 @@
     position: relative;
   }
 
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background-image: radial-gradient(circle at 2px 2px, rgba(192, 132, 252, 0.05) 1px, transparent 0);
-    background-size: 32px 32px;
-    pointer-events: none;
-    z-index: 1;
-  }
+
 
   body::after {
     content: "";
@@ -135,6 +127,22 @@
     filter: blur(1px);
     pointer-events: none;
     z-index: 2;
+  }
+
+  .hologram-blueprint {
+    animation: onyx-hologram-flicker 8s linear infinite;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+  }
+
+  @keyframes onyx-hologram-flicker {
+    0%, 100% { opacity: 1; }
+    33% { opacity: 0.85; }
+    34% { opacity: 1; }
+    66% { opacity: 0.9; }
+    67% { opacity: 1; }
+    90% { opacity: 0.95; }
   }
 }
 

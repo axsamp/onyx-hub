@@ -25,355 +25,124 @@ const apps = [
     id: 'itinerary',
     name: 'Itinerary Command',
     url: 'https://axsamp.github.io/onyx-itinerary/',
-    color: 'from-onyx-purple to-indigo-900',
-    type: 'blade-hero',
-    shape: 'obsidian-shape-1',
-    blueprint: 'radar'
+    version: 'V4.1.2',
+    node: '01',
   },
   {
     id: 'budget',
     name: 'Budget Buffer',
     url: 'https://axsamp.github.io/budget-buffer/',
-    color: 'from-onyx-purple to-purple-900',
-    type: 'blade-deck-left',
-    shape: 'obsidian-shape-2',
-    blueprint: 'data-grid'
+    version: 'V3.8.0',
+    node: '02',
   },
   {
     id: 'converter',
     name: 'Unit Converter',
     url: 'https://axsamp.github.io/onyx-converter/',
-    color: 'from-onyx-purple to-violet-900',
-    type: 'blade-deck-right',
-    shape: 'obsidian-shape-1',
-    blueprint: 'matrix'
+    version: 'V2.5.4',
+    node: '03',
   },
   {
     id: 'stamps',
     name: 'Stamp Collector',
     url: 'https://axsamp.github.io/onyx-stamps/',
-    color: 'from-onyx-purple to-fuchsia-900',
-    type: 'blade-hero',
-    shape: 'obsidian-shape-2',
-    blueprint: 'celestial'
+    version: 'V1.9.9',
+    node: '04',
   },
 ];
 
-const Blueprint = ({ type }) => {
-  const blueprintStyles = "w-full h-full opacity-[0.18] stroke-onyx-purple fill-none drop-shadow-[0_0_2px_#c084fc] drop-shadow-[0_0_8px_rgba(192,132,252,0.2)] hologram-blueprint";
-  
-  if (type === 'radar') return (
-    <svg className={blueprintStyles} viewBox="0 0 100 100">
-      {/* Static Detail Rings */}
-      <circle cx="50" cy="50" r="48" strokeWidth="0.1" strokeDasharray="1 3" className="opacity-30" />
-      <circle cx="50" cy="50" r="35" strokeWidth="0.05" strokeDasharray="4 2" className="opacity-40" />
-      <circle cx="50" cy="50" r="12" strokeWidth="0.05" />
-      
-      {/* Cardinal Labels */}
-      <g className="fill-onyx-purple text-[5px] font-black opacity-60" textAnchor="middle">
-        <text x="50" y="8">N</text>
-        <text x="92" y="52">E</text>
-        <text x="50" y="96">S</text>
-        <text x="8" y="52">W</text>
-      </g>
-
-      <defs>
-        <linearGradient id="needleGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="currentColor" stopOpacity="1" />
-          <stop offset="50%" stopColor="currentColor" stopOpacity="0.4" />
-          <stop offset="100%" stopColor="currentColor" stopOpacity="1" />
-        </linearGradient>
-      </defs>
-
-      {/* Compass Needle - High Precision */}
-      <motion.g
-        animate={{ rotate: [0, 15, -10, 5, 0] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        className="origin-center"
-      >
-        <path 
-          d="M50 15 L53 50 L50 85 L47 50 Z" 
-          strokeWidth="0.3" 
-          className="opacity-90"
-          fill="url(#needleGradient)"
-        />
-        <circle cx="50" cy="50" r="1.5" fill="currentColor" />
-      </motion.g>
-
-      {/* Degree Ticks */}
-      {Array.from({ length: 36 }).map((_, i) => (
-        <line 
-          key={i} 
-          x1="50" y1="2" x2="50" y2={i % 9 === 0 ? 8 : 4} 
-          strokeWidth="0.1" 
-          transform={`rotate(${i * 10} 50 50)`} 
-          className="opacity-40"
-        />
-      ))}
-    </svg>
-  );
-  if (type === 'data-grid') {
-    const [numbers, setNumbers] = React.useState([]);
-    React.useEffect(() => {
-      const timer = setInterval(() => {
-        setNumbers(Array.from({ length: 3 }, (_, i) => ({
-          id: Math.random(),
-          val: (Math.random() * 99).toFixed(2),
-          x: 25 + Math.random() * 50, // Centered range
-          y: 30 + Math.random() * 40, // Centered range
-          delay: i * 0.8
-        })));
-      }, 3000);
-      return () => clearInterval(timer);
-    }, []);
-
-    return (
-      <svg className={blueprintStyles} viewBox="0 0 100 100">
-        {/* Main Grid */}
-        {Array.from({ length: 11 }).map((_, i) => (
-          <React.Fragment key={i}>
-            <line x1="0" y1={i * 10} x2="100" y2={i * 10} strokeWidth="0.05" className="opacity-20" />
-            <line x1={i * 10} y1="0" x2={i * 10} y2="100" strokeWidth="0.05" className="opacity-20" />
-          </React.Fragment>
-        ))}
-        
-        {/* Scanning Beam */}
-        <motion.line
-          x1="0" x2="100"
-          animate={{ y: [0, 100, 0] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-          strokeWidth="0.3"
-          className="opacity-40"
-        />
-
-        {/* Ledger/Data Stream - Constrained to Grid */}
-        <g className="fill-onyx-purple text-[4px] font-mono opacity-60" textAnchor="middle">
-          <AnimatePresence>
-            {numbers.map((n) => (
-              <motion.text
-                key={n.id}
-                initial={{ opacity: 0, y: n.y - 2 }}
-                animate={{ opacity: 1, y: n.y }}
-                exit={{ opacity: 0, y: n.y + 2 }}
-                transition={{ duration: 0.5 }}
-                x={n.x}
-                y={n.y}
-              >
-                {`DATA_${n.val}`}
-              </motion.text>
-            ))}
-          </AnimatePresence>
-        </g>
-
-        {/* Mini Chart */}
-        <motion.path
-          d="M70 85 L75 80 L80 82 L85 75 L90 78 L95 70"
-          fill="none"
-          strokeWidth="0.2"
-          strokeDasharray="100"
-          animate={{ strokeDashoffset: [100, 0, 100] }}
-          transition={{ duration: 10, repeat: Infinity }}
-        />
-
-        <rect x="5" y="5" width="90" height="90" strokeWidth="0.2" strokeDasharray="1 4" />
-        <path d="M5 15 L5 5 L15 5 M85 5 L95 5 L95 15 M95 85 L95 95 L85 95 M15 95 L5 95 L5 85" strokeWidth="0.5" />
-      </svg>
-    );
-  }
-  if (type === 'matrix') return (
-    <svg className={blueprintStyles} viewBox="0 0 100 100">
-      {/* Hexagonal Frame */}
-      <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" strokeWidth="0.1" strokeDasharray="2 2" className="opacity-30" />
-      
-      {/* Logic Gates/Nodes */}
-      <rect x="25" y="40" width="10" height="20" strokeWidth="0.2" className="opacity-40" />
-      <rect x="65" y="40" width="10" height="20" strokeWidth="0.2" className="opacity-40" />
-      <circle cx="50" cy="50" r="8" strokeWidth="0.2" strokeDasharray="1 1" />
-      
-      {/* Flow Particles */}
-      {[0, 1, 2].map((i) => (
-        <motion.circle
-          key={i}
-          r="0.5"
-          fill="currentColor"
-          animate={{ 
-            cx: [35, 50, 65],
-            cy: [50, 50, 50],
-            opacity: [0, 1, 0]
-          }}
-          transition={{ 
-            duration: 2, 
-            repeat: Infinity, 
-            delay: i * 0.6,
-            ease: "easeInOut"
-          }}
-        />
-      ))}
-
-      {/* Binary Stream */}
-      <g className="fill-onyx-purple text-[2.5px] font-mono opacity-40">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <text key={i} x="15" y={30 + i * 8}>{Math.random() > 0.5 ? '1010' : '0101'}</text>
-        ))}
-        {Array.from({ length: 6 }).map((_, i) => (
-          <text key={i} x="75" y={30 + i * 8}>{Math.random() > 0.5 ? '1100' : '0011'}</text>
-        ))}
-      </g>
-
-      <motion.path
-        d="M35 50 L42 50 M58 50 L65 50"
-        strokeWidth="0.3"
-        animate={{ opacity: [0.2, 1, 0.2] }}
-        transition={{ duration: 1.5, repeat: Infinity }}
-      />
-    </svg>
-  );
-  if (type === 'celestial') return (
-    <svg className={blueprintStyles} viewBox="0 0 100 100">
-      {/* Rotating Orbital Rings */}
-      <motion.circle 
-        cx="50" cy="50" r="40" strokeWidth="0.05" strokeDasharray="4 8"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className="origin-center opacity-30"
-      />
-      <motion.circle 
-        cx="50" cy="50" r="30" strokeWidth="0.05" strokeDasharray="2 4"
-        animate={{ rotate: -360 }}
-        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-        className="origin-center opacity-40"
-      />
-      
-      {/* Constellation Lines - More geometric/technical */}
-      <path d="M25 25 L50 15 L75 25 L85 50 L75 75 L50 85 L25 75 L15 50 Z" strokeWidth="0.05" strokeDasharray="1 4" className="opacity-30" />
-      <path d="M35 35 L50 25 L65 35 L65 65 L50 75 L35 65 Z" strokeWidth="0.1" strokeDasharray="2 2" className="opacity-40" />
-      
-      {/* Central Core */}
-      <circle cx="50" cy="50" r="5" strokeWidth="0.2" />
-      <motion.circle 
-        cx="50" cy="50" r="8" strokeWidth="0.05" 
-        animate={{ r: [8, 10, 8], opacity: [0.3, 0.6, 0.3] }}
-        transition={{ duration: 4, repeat: Infinity }}
-      />
-
-      {/* Perimeter Markers */}
-      {Array.from({ length: 4 }).map((_, i) => (
-        <rect 
-          key={i} 
-          x="48" y="0" width="4" height="0.5" 
-          transform={`rotate(${i * 90} 50 50)`} 
-          className="opacity-60"
-        />
-      ))}
-    </svg>
-  );
-  return null;
-};
-
-const AppCard = ({ app, delay }) => {
+const NodeLink = ({ app, delay }) => {
+  const [isHovered, setIsHovered] = React.useState(false);
   const [isLaunching, setIsLaunching] = React.useState(false);
 
+  const handleTap = () => {
+    triggerHaptic('medium');
+    setIsLaunching(true);
+  };
+
   return (
-    <motion.a
-      href={app.url}
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ 
-        opacity: isLaunching ? 0.6 : 1,
-        scale: isLaunching ? 0.98 : 1,
-        y: 0 
-      }}
-      whileHover={{ scale: 1.01, y: -5 }}
-      whileTap={{ scale: 0.98 }}
-      onPointerDown={() => {
-        triggerHaptic('medium');
-        setIsLaunching(true);
-      }}
-      transition={{ delay, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      className={cn(
-        "onyx-card group block perspective-2000 relative overflow-hidden",
-        app.shape,
-        app.type === 'blade-hero' && "w-full h-[320px] mb-8",
-        app.type === 'blade-deck-left' && "w-[90%] h-[240px] -mb-20 self-start z-10 shadow-2xl",
-        app.type === 'blade-deck-right' && "w-[90%] h-[240px] mb-12 self-end z-20 shadow-[0_-20px_50px_rgba(0,0,0,0.5)]"
-      )}
-    >
-      {/* Generative Pulse Line */}
-      <div className="pulse-line" style={{ animationDelay: `${delay}s` }} />
+    <div className="relative pl-16 py-12 group">
+      {/* Port Connection Line */}
+      <svg className="absolute left-0 top-1/2 -translate-y-1/2 w-16 h-24 pointer-events-none overflow-visible">
+        <motion.path
+          d="M0 12 L30 12 L45 32 L64 32"
+          fill="none"
+          stroke={isHovered ? "#C084FC" : "#3F3F46"}
+          strokeWidth="0.5"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ delay: delay + 0.5, duration: 1 }}
+        />
+        {/* Connection Joint */}
+        <motion.circle
+          cx="0" cy="12" r="2"
+          fill={isHovered ? "#C084FC" : "#27272A"}
+          className="transition-colors duration-300"
+        />
+        {/* Animated Pulse Packet */}
+        {isHovered && (
+          <motion.circle
+            r="1.5"
+            fill="#C084FC"
+            animate={{ 
+              cx: [0, 30, 45, 64],
+              cy: [12, 12, 32, 32]
+            }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+          />
+        )}
+      </svg>
 
-      {/* Holographic Blueprint Background */}
-      <div className="absolute inset-0 z-10 p-12 overflow-hidden flex items-center justify-center">
-        <div className="w-full h-full max-w-[240px] max-h-[240px]">
-          <Blueprint type={app.blueprint} />
-        </div>
-      </div>
-
-      {/* Pure Obsidian Surface */}
-      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none" />
-
-      {/* Background Gradient with Scanning Effect */}
-      <div className={cn(
-        "absolute inset-0 z-0 bg-gradient-to-br opacity-5",
-        app.color
-      )}>
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%)] bg-[length:100%_4px] pointer-events-none opacity-40" />
-        <div className="absolute inset-0 bg-gradient-to-t from-onyx-bg via-transparent to-transparent" />
-      </div>
-
-      {/* Content */}
-      <div className="relative z-20 h-full p-8 flex flex-col">
-        {/* Top Section - ID and Status */}
-        <div className="flex justify-between items-start">
-          <motion.div 
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="relative group-hover:translate-x-2 transition-transform duration-500"
-          >
-            <div className="flex items-center gap-3 mb-1">
-
-              <p className="text-[10px] text-onyx-purple font-black uppercase tracking-[0.4em]">
-                ONYX
-              </p>
-            </div>
-            <div className="flex flex-col">
-              <h2 className="text-xl font-black uppercase tracking-wide leading-none text-white group-hover:text-onyx-purple transition-colors duration-500">
-                {app.name.split(' ')[0]}
-              </h2>
-              <span className="text-[12px] font-bold uppercase tracking-[0.3em] text-onyx-muted group-hover:text-onyx-purple/60 transition-colors duration-500 mt-1">
-                {app.name.split(' ').slice(1).join(' ')}
-              </span>
-            </div>
-          </motion.div>
-
-          <div className="text-[8px] font-mono text-onyx-muted opacity-40 uppercase tracking-widest text-right">
-            SEC_LEVEL: 05<br />
-            STATUS: ACTIVE
+      <motion.a
+        href={app.url}
+        onPointerDown={handleTap}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ 
+          opacity: isLaunching ? 0.4 : 1, 
+          x: isLaunching ? 10 : 0 
+        }}
+        transition={{ delay, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="block"
+      >
+        <div className="flex flex-col">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="text-[10px] font-black text-onyx-purple uppercase tracking-[0.4em]">NODE_{app.node}</span>
+            <div className="h-[1px] w-8 bg-onyx-purple/20" />
+            <span className="text-[8px] font-mono text-onyx-muted opacity-40">{app.version}</span>
           </div>
+          
+          <h2 className={cn(
+            "text-3xl md:text-4xl font-black uppercase tracking-tight leading-none transition-all duration-500",
+            isHovered ? "text-onyx-purple translate-x-2" : "text-white"
+          )}>
+            {app.name.split(' ')[0]}
+            <span className={cn(
+              "block text-lg font-bold tracking-[0.4em] mt-1 transition-colors duration-500",
+              isHovered ? "text-onyx-purple/60" : "text-onyx-muted"
+            )}>
+              {app.name.split(' ').slice(1).join(' ')}
+            </span>
+          </h2>
         </div>
-
-        {/* Bottom Spacer */}
-        <div className="mt-auto flex justify-between items-end">
-          <div className="w-8 h-px bg-onyx-purple/20 group-hover:w-16 transition-all duration-700" />
-          <ArrowUpRight className="w-4 h-4 text-onyx-purple opacity-0 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-500" />
-        </div>
-      </div>
-    </motion.a>
+      </motion.a>
+    </div>
   );
 };
 
 export default function App() {
   const [isIslandExpanded, setIsIslandExpanded] = React.useState(false);
   const [systemBudget, setSystemBudget] = React.useState(() => {
-    return localStorage.getItem('onyx_total_budget') || '0';
+    return localStorage.getItem('onyx_total_budget') || '585000';
   });
   const { scrollY } = useScroll();
 
-  // Listen for cross-app storage updates
   React.useEffect(() => {
     const handleStorageChange = () => {
-      setSystemBudget(localStorage.getItem('onyx_total_budget') || '0');
+      setSystemBudget(localStorage.getItem('onyx_total_budget') || '585000');
     };
     window.addEventListener('storage', handleStorageChange);
-    // Also poll occasionally in case of same-window navigation updates
     const interval = setInterval(handleStorageChange, 2000);
     return () => {
       window.removeEventListener('storage', handleStorageChange);
@@ -381,27 +150,19 @@ export default function App() {
     };
   }, []);
 
-  // Scroll-based transforms for the island when NOT expanded
   const islandX = useTransform(scrollY, [0, 80], [0, -110]);
   const islandScale = useTransform(scrollY, [0, 80], [1, 0.85]);
-  
   const springConfig = { stiffness: 400, damping: 30, mass: 1 };
   const smoothIslandX = useSpring(islandX, springConfig);
   const smoothIslandScale = useSpring(islandScale, springConfig);
 
-  const toggleIsland = () => {
-    triggerHaptic('medium');
-    setIsIslandExpanded(!isIslandExpanded);
-  };
-
   return (
     <div className="min-h-screen bg-onyx-bg text-white p-4 md:p-6 flex flex-col items-center">
-      {/* Onyx Island - Virtual Dynamic Island Integration */}
+      {/* Onyx Island */}
       <div className="sticky z-[100] top-0 w-full flex justify-center pt-[max(12px,env(safe-area-inset-top))] mb-12">
         <motion.div
-          onPointerDown={toggleIsland}
+          onPointerDown={() => { triggerHaptic('medium'); setIsIslandExpanded(!isIslandExpanded); }}
           layout
-          initial={false}
           animate={{
             width: isIslandExpanded ? "100%" : "auto",
             maxWidth: isIslandExpanded ? "380px" : "180px",
@@ -415,33 +176,16 @@ export default function App() {
         >
           <AnimatePresence mode="wait">
             {!isIslandExpanded ? (
-              <motion.div
-                key="compact"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                className="flex items-center gap-3 px-4"
-              >
-                <div className="w-1.5 h-1.5 rounded-full bg-onyx-purple animate-pulse shadow-[0_0_8px_rgba(192,132,252,1)]" />
+              <motion.div key="compact" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-3 px-4">
+                <div className="w-1.5 h-1.5 rounded-full bg-onyx-purple animate-pulse" />
                 <span className="text-[10px] font-black text-onyx-purple uppercase tracking-[0.4em]">Onyx OS</span>
-                <div className="w-4 h-4 rounded-full border border-white/20 flex items-center justify-center">
-                  <div className="w-1 h-1 bg-white rounded-full" />
-                </div>
               </motion.div>
             ) : (
-              <motion.div
-                key="expanded"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="w-full h-full p-6 flex flex-col justify-between"
-              >
+              <motion.div key="expanded" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full h-full p-6 flex flex-col justify-between">
                 <div className="flex justify-between items-start">
                   <div className="flex flex-col">
                     <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-[0.3em] mb-1">System Node</span>
-                    <h1 className="text-lg font-black tracking-tighter uppercase leading-none">
-                      Onyx<span className="text-onyx-purple ml-1">Hub</span>
-                    </h1>
+                    <h1 className="text-lg font-black tracking-tighter uppercase leading-none">Onyx<span className="text-onyx-purple ml-1">Hub</span></h1>
                   </div>
                   <div className="flex flex-col items-end">
                     <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-[0.3em] mb-1">Tokyo Time</span>
@@ -450,20 +194,16 @@ export default function App() {
                     </span>
                   </div>
                 </div>
-
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white/5 rounded-2xl p-3 border border-white/5">
-                    <span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">Total Trip Cost</span>
+                    <span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">Remaining Budget</span>
                     <span className="text-sm font-black text-onyx-purple">¥{parseInt(systemBudget).toLocaleString()}</span>
                   </div>
                   <div className="bg-white/5 rounded-2xl p-3 border border-white/5">
                     <span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">Signal Status</span>
                     <div className="flex items-center gap-1.5 mt-1">
                       <div className="flex gap-0.5">
-                        <div className="w-0.5 h-1 bg-onyx-purple" />
-                        <div className="w-0.5 h-2 bg-onyx-purple" />
-                        <div className="w-0.5 h-3 bg-onyx-purple" />
-                        <div className="w-0.5 h-4 bg-onyx-purple/30" />
+                        <div className="w-0.5 h-1 bg-onyx-purple" /><div className="w-0.5 h-2 bg-onyx-purple" /><div className="w-0.5 h-3 bg-onyx-purple" />
                       </div>
                       <span className="text-[8px] font-bold text-white uppercase">Stable</span>
                     </div>
@@ -475,15 +215,22 @@ export default function App() {
         </motion.div>
       </div>
 
-      {/* Fluid Blade Stack */}
-      <div className="w-full max-w-lg flex flex-col items-stretch">
-        {apps.map((app, index) => (
-          <AppCard key={app.id} app={app} delay={0.1 * (index + 1)} />
-        ))}
+      {/* Main Structural Lattice */}
+      <div className="relative w-full max-w-lg mt-12 pb-32">
+        {/* Central Backbone Lines */}
+        <div className="absolute left-0 top-0 bottom-0 flex gap-1 ml-[1px]">
+          <div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent" />
+          <div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent opacity-50" />
+          <div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent opacity-20" />
+        </div>
 
-
+        {/* App Nodes */}
+        <div className="flex flex-col">
+          {apps.map((app, index) => (
+            <NodeLink key={app.id} app={app} delay={index * 0.15} />
+          ))}
+        </div>
       </div>
-
       {/* Footer */}
       <footer className="mt-16 text-center pb-12 flex flex-col items-center gap-4">
         <div className="w-px h-12 bg-gradient-to-b from-onyx-purple/40 to-transparent" />

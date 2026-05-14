@@ -361,72 +361,102 @@ const AppCard = ({ app, delay }) => {
 };
 
 export default function App() {
+  const [isIslandExpanded, setIsIslandExpanded] = React.useState(false);
   const { scrollY } = useScroll();
 
-  // Direct mapping of scroll to style values for peak performance
-  const headerMaxWidth = useTransform(scrollY, [0, 80], ["512px", "64px"]);
-  const headerPadding = useTransform(scrollY, [0, 80], ["16px", "8px"]);
-  const headerRadius = useTransform(scrollY, [0, 80], [28, 20]);
-  const headerX = useTransform(scrollY, [0, 80], [0, -130]);
-  const contentOpacity = useTransform(scrollY, [0, 40], [1, 0]);
-  const contentScale = useTransform(scrollY, [0, 80], [1, 0.8]);
+  // Scroll-based transforms for the island when NOT expanded
+  const islandX = useTransform(scrollY, [0, 80], [0, -110]);
+  const islandScale = useTransform(scrollY, [0, 80], [1, 0.85]);
+  
+  const springConfig = { stiffness: 400, damping: 30, mass: 1 };
+  const smoothIslandX = useSpring(islandX, springConfig);
+  const smoothIslandScale = useSpring(islandScale, springConfig);
 
-  // Smooth out the motion values with a spring
-  const springConfig = { stiffness: 400, damping: 40, mass: 1, restDelta: 0.001 };
-  const smoothMaxWidth = useSpring(headerMaxWidth, springConfig);
-  const smoothPadding = useSpring(headerPadding, springConfig);
-  const smoothRadius = useSpring(headerRadius, springConfig);
-  const smoothX = useSpring(headerX, springConfig);
-  const smoothOpacity = useSpring(contentOpacity, springConfig);
-
-
+  const toggleIsland = () => {
+    triggerHaptic('medium');
+    setIsIslandExpanded(!isIslandExpanded);
+  };
 
   return (
     <div className="min-h-screen bg-onyx-bg text-white p-4 md:p-6 flex flex-col items-center">
-      {/* Header - Modular & Optimized for iPhone 16 Pro */}
-      <motion.header
-        style={{
-          maxWidth: smoothMaxWidth,
-          padding: smoothPadding,
-          borderRadius: smoothRadius,
-          x: smoothX,
-          width: "100%",
-          top: "max(24px, env(safe-area-inset-top))",
-        }}
-        onPointerDown={() => triggerHaptic('medium')}
-        className="mb-10 flex justify-between items-center bg-black/60 backdrop-blur-3xl border border-white/10 sticky z-50 shadow-[0_30px_60px_rgba(0,0,0,0.6)] overflow-hidden"
-      >
-        <div className="flex items-center gap-4 min-w-max">
-          <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/10 shadow-2xl">
-            <img src={`${import.meta.env.BASE_URL}icon.png`} alt="Onyx Hub" className="w-full h-full object-cover" />
-          </div>
-
-          <motion.div
-            style={{ opacity: smoothOpacity, scale: contentScale }}
-            className="flex flex-col"
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-4 h-[2px] bg-onyx-purple" />
-              <span className="text-[8px] font-bold text-onyx-purple uppercase tracking-[0.3em]">Onyx OS</span>
-            </div>
-            <h1 className="text-2xl font-black tracking-tighter uppercase leading-none">
-              Onyx<span className="text-onyx-purple ml-1">Hub</span>
-            </h1>
-          </motion.div>
-        </div>
-
+      {/* Onyx Island - Virtual Dynamic Island Integration */}
+      <div className="sticky z-[100] top-0 w-full flex justify-center pt-[max(12px,env(safe-area-inset-top))] mb-12">
         <motion.div
-          style={{ opacity: smoothOpacity, scale: contentScale }}
-          className="flex flex-col items-end min-w-max"
+          onPointerDown={toggleIsland}
+          layout
+          initial={false}
+          animate={{
+            width: isIslandExpanded ? "100%" : "auto",
+            maxWidth: isIslandExpanded ? "380px" : "180px",
+            height: isIslandExpanded ? "180px" : "36px",
+            borderRadius: isIslandExpanded ? "42px" : "18px",
+            x: isIslandExpanded ? 0 : smoothIslandX.get(),
+            scale: isIslandExpanded ? 1 : smoothIslandScale.get(),
+          }}
+          transition={springConfig}
+          className="bg-black border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.8)] overflow-hidden cursor-pointer flex flex-col items-center justify-center relative"
         >
-          <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-widest mb-0.5">System Time</span>
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-mono font-bold tabular-nums tracking-tighter">
-              {new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tokyo' })}
-            </span>
-          </div>
+          <AnimatePresence mode="wait">
+            {!isIslandExpanded ? (
+              <motion.div
+                key="compact"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                className="flex items-center gap-3 px-4"
+              >
+                <div className="w-1.5 h-1.5 rounded-full bg-onyx-purple animate-pulse shadow-[0_0_8px_rgba(192,132,252,1)]" />
+                <span className="text-[10px] font-black text-onyx-purple uppercase tracking-[0.4em]">Onyx OS</span>
+                <div className="w-4 h-4 rounded-full border border-white/20 flex items-center justify-center">
+                  <div className="w-1 h-1 bg-white rounded-full" />
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="expanded"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="w-full h-full p-6 flex flex-col justify-between"
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex flex-col">
+                    <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-[0.3em] mb-1">System Node</span>
+                    <h1 className="text-lg font-black tracking-tighter uppercase leading-none">
+                      Onyx<span className="text-onyx-purple ml-1">Hub</span>
+                    </h1>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-[0.3em] mb-1">Tokyo Time</span>
+                    <span className="text-xl font-mono font-bold tabular-nums tracking-tighter">
+                      {new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tokyo' })}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white/5 rounded-2xl p-3 border border-white/5">
+                    <span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">Total Trip Cost</span>
+                    <span className="text-sm font-black text-onyx-purple">¥142,800</span>
+                  </div>
+                  <div className="bg-white/5 rounded-2xl p-3 border border-white/5">
+                    <span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">Signal Status</span>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <div className="flex gap-0.5">
+                        <div className="w-0.5 h-1 bg-onyx-purple" />
+                        <div className="w-0.5 h-2 bg-onyx-purple" />
+                        <div className="w-0.5 h-3 bg-onyx-purple" />
+                        <div className="w-0.5 h-4 bg-onyx-purple/30" />
+                      </div>
+                      <span className="text-[8px] font-bold text-white uppercase">Stable</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
-      </motion.header>
+      </div>
 
       {/* Fluid Blade Stack */}
       <div className="w-full max-w-lg flex flex-col items-stretch">

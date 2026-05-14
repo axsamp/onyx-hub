@@ -1,13 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
 @import "tailwindcss";
-
-@font-face {
-  font-family: 'MaruMonica';
-  src: url('/fonts/MaruMonica.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
 
 @theme {
   --color-onyx-bg: #000000;
@@ -18,7 +10,7 @@
   --color-onyx-text: #FFFFFF;
   --color-onyx-muted: #71717A;
   
-  --font-sans: "MaruMonica", "Inter", -apple-system, system-ui, sans-serif;
+  --font-sans: "Outfit", -apple-system, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
   
   --radius-onyx: 0.5rem;

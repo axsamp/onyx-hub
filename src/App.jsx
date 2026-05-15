@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, RefreshCcw, Trash2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { RefreshCcw, Trash2, X } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -11,8 +11,7 @@ function cn(...inputs) {
 const triggerHaptic = (type = 'light') => {
   try {
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
-      if (type === 'light') navigator.vibrate(10);
-      else if (type === 'medium') navigator.vibrate(20);
+      navigator.vibrate(type === 'light' ? 10 : 20);
     }
   } catch (e) {}
 };
@@ -49,48 +48,14 @@ const NodeLink = React.memo(({ app, delay }) => {
   return (
     <div className="relative pl-16 py-12 group will-change-transform">
       <svg className="absolute left-0 top-1/2 -translate-y-1/2 w-16 h-24 pointer-events-none overflow-visible">
-        <motion.path
-          d="M0 12 L30 12 L45 32 L64 32"
-          fill="none"
-          stroke={showActiveState ? "#C084FC" : "#3F3F46"}
-          strokeWidth="0.5"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ delay: delay + 0.5, duration: 1 }}
-        />
+        <motion.path d="M0 12 L30 12 L45 32 L64 32" fill="none" stroke={showActiveState ? "#C084FC" : "#3F3F46"} strokeWidth="0.5" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: delay + 0.5, duration: 1 }} />
         <motion.circle cx="0" cy="12" r="2" fill={showActiveState ? "#C084FC" : "#27272A"} className="transition-colors duration-300" />
-        {showActiveState && isVisible && (
-          <motion.circle
-            r="1.5"
-            fill="#C084FC"
-            animate={{ cx: [0, 30, 45, 64], cy: [12, 12, 32, 32] }}
-            transition={{ duration: 1.5 + (Math.random() * 0.5), repeat: Infinity, ease: "linear", delay }}
-          />
-        )}
+        {showActiveState && isVisible && <motion.circle r="1.5" fill="#C084FC" animate={{ cx: [0, 30, 45, 64], cy: [12, 12, 32, 32] }} transition={{ duration: 1.5 + (Math.random() * 0.5), repeat: Infinity, ease: "linear", delay }} />}
       </svg>
-
-      <motion.a
-        href={app.url}
-        onPointerDown={handleTap}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: isLaunching ? 0.4 : 1, x: isLaunching ? 10 : 0 }}
-        transition={{ delay, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="block"
-      >
+      <motion.a href={app.url} onPointerDown={handleTap} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)} initial={{ opacity: 0, x: 20 }} animate={{ opacity: isLaunching ? 0.4 : 1, x: isLaunching ? 10 : 0 }} transition={{ delay, duration: 0.8, ease: [0.16, 1, 0.3, 1] }} className="block">
         <div className="flex flex-col">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-[10px] font-black text-onyx-purple uppercase tracking-[0.4em]">NODE_{app.node}</span>
-            <div className="h-[1px] w-8 bg-onyx-purple/20" />
-            <span className="text-[8px] font-mono text-onyx-muted opacity-40">{app.version}</span>
-          </div>
-          <h2 className={cn("text-2xl md:text-3xl font-black uppercase tracking-tight leading-none transition-all duration-500", showActiveState ? "text-onyx-purple translate-x-2" : "text-white")}>
-            {app.name.split(' ')[0]}
-            <span className={cn("block text-base font-bold tracking-[0.2em] mt-1 transition-colors duration-500 text-white", showActiveState ? "opacity-100" : "opacity-40")}>
-              {app.name.split(' ').slice(1).join(' ')}
-            </span>
-          </h2>
+          <div className="flex items-center gap-3 mb-2"><span className="text-[10px] font-black text-onyx-purple uppercase tracking-[0.4em]">NODE_{app.node}</span><div className="h-[1px] w-8 bg-onyx-purple/20" /><span className="text-[8px] font-mono text-onyx-muted opacity-40">{app.version}</span></div>
+          <h2 className={cn("text-2xl md:text-3xl font-black uppercase tracking-tight leading-none transition-all duration-500", showActiveState ? "text-onyx-purple translate-x-2" : "text-white")}>{app.name.split(' ')[0]}<span className={cn("block text-base font-bold tracking-[0.2em] mt-1 transition-colors duration-500 text-white", showActiveState ? "opacity-100" : "opacity-40")}>{app.name.split(' ').slice(1).join(' ')}</span></h2>
         </div>
       </motion.a>
     </div>
@@ -111,22 +76,13 @@ export default function App() {
         setTime(new Date());
       }, 2000);
     };
-    const stopSync = () => clearInterval(interval);
-
-    const handleVisibility = () => document.hidden ? stopSync() : startSync();
+    const handleVisibility = () => document.hidden ? clearInterval(interval) : startSync();
     document.addEventListener('visibilitychange', handleVisibility);
     startSync();
     return () => {
       document.removeEventListener('visibilitychange', handleVisibility);
-      stopSync();
+      clearInterval(interval);
     };
-  }, []);
-
-  const clearSystemCache = useCallback(() => {
-    if (confirm("RESET ALL LATTICE DATA?")) {
-      localStorage.clear();
-      window.location.reload();
-    }
   }, []);
 
   const forceRefresh = useCallback(() => {
@@ -138,16 +94,29 @@ export default function App() {
     } else window.location.reload(true);
   }, []);
 
+  const clearSystemCache = useCallback(() => {
+    if (confirm("RESET ALL ONYX LOCAL DATA?")) {
+      localStorage.clear();
+      window.location.reload();
+    }
+  }, []);
+
   const springConfig = { stiffness: 400, damping: 30, mass: 1 };
 
   return (
     <div className="min-h-screen bg-onyx-bg text-white p-4 md:p-6 flex flex-col items-center selection:bg-onyx-purple/30 will-change-transform">
-      <div className="fixed left-0 top-0 pt-[env(safe-area-inset-top)] z-[100]">
+      {/* Dynamic Island Mimic */}
+      <div className="fixed left-0 right-0 top-0 pt-[env(safe-area-inset-top)] z-[100] flex justify-center pointer-events-none">
         <motion.div
-          onPointerDown={() => { triggerHaptic('medium'); setIsIslandExpanded(!isIslandExpanded); }}
-          animate={{ width: isIslandExpanded ? "300px" : "80px", height: isIslandExpanded ? "380px" : "44px", borderBottomRightRadius: isIslandExpanded ? "24px" : "12px" }}
+          onPointerDown={(e) => { e.stopPropagation(); triggerHaptic('medium'); setIsIslandExpanded(!isIslandExpanded); }}
+          animate={{ 
+            width: isIslandExpanded ? "min(320px, 90vw)" : "80px", 
+            height: isIslandExpanded ? "400px" : "36px", 
+            borderRadius: isIslandExpanded ? "28px" : "18px",
+            y: isIslandExpanded ? 12 : 8
+          }}
           transition={springConfig}
-          className="bg-black border-r border-b border-white/10 shadow-[20px_20px_40px_rgba(0,0,0,0.8)] overflow-hidden cursor-pointer relative flex items-center"
+          className="bg-black border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden cursor-pointer relative flex items-center pointer-events-auto"
         >
           <AnimatePresence mode="wait">
             {!isIslandExpanded ? (
@@ -155,8 +124,15 @@ export default function App() {
                 <span className="text-[10px] font-black text-onyx-purple uppercase tracking-[0.4em] ml-[0.4em]">ONYX</span>
               </motion.div>
             ) : (
-              <motion.div key="expanded" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="w-full h-full p-6 flex flex-col">
-                <div className="flex flex-col gap-1 mb-6"><span className="text-[8px] font-bold text-onyx-muted uppercase tracking-[0.3em]">Onyx Chassis // V5.1.0</span><div className="w-12 h-[1px] bg-onyx-purple/40" /></div>
+              <motion.div key="expanded" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full h-full p-6 flex flex-col">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-[0.3em]">Onyx Chassis // V5.2.0</span>
+                    <div className="w-12 h-[1px] bg-onyx-purple/40" />
+                  </div>
+                  <button onClick={(e) => { e.stopPropagation(); setIsIslandExpanded(false); }} className="p-2 -mr-2 text-zinc-600 hover:text-white transition-colors"><X size={16} /></button>
+                </div>
+
                 <div className="relative flex-1">
                   <div className="absolute left-0 top-0 bottom-0 w-[4px] flex justify-between"><div className="w-[1.5px] h-full bg-gradient-to-b from-transparent via-onyx-purple to-transparent opacity-40" /><div className="w-[1px] h-full bg-onyx-purple/10" /></div>
                   <div className="flex flex-col gap-8 pl-8">
@@ -174,7 +150,20 @@ export default function App() {
         </motion.div>
       </div>
 
-      <div className="relative w-full max-w-lg mt-12 pb-32">
+      {/* Background Dim for Island */}
+      <AnimatePresence>
+        {isIslandExpanded && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            onClick={() => setIsIslandExpanded(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90]"
+          />
+        )}
+      </AnimatePresence>
+
+      <div className="relative w-full max-w-lg mt-24 pb-32">
         <div className="absolute left-0 top-0 bottom-0 flex gap-1 ml-[1px]"><div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent" /><div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent opacity-50" /><div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent opacity-20" /></div>
         <div className="flex flex-col">
           {APPS.map((app, index) => <NodeLink key={app.id} app={app} delay={index * 0.12} />)}

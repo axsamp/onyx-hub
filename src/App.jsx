@@ -22,7 +22,6 @@ const APPS = [
   { id: 'converter', name: 'Unit Converter', url: 'https://axsamp.github.io/onyx-converter/', version: 'V2.5.6', node: '03' },
   { id: 'stamps', name: 'Stamp Collector', url: 'https://axsamp.github.io/onyx-stamps/', version: 'V1.9.11', node: '04' },
   { id: 'signal', name: 'Onyx Signal', url: 'https://axsamp.github.io/onyx-recorder/', version: 'V1.0.2', node: '05' },
-  { id: 'waypoint', name: 'Onyx Waypoint', url: 'https://axsamp.github.io/onyx-waypoint/', version: 'V1.0.4', node: '06' },
 ];
 
 const NodeLink = React.memo(({ app, delay }) => {
@@ -106,7 +105,6 @@ export default function App() {
   return (
     <div className="min-h-screen bg-onyx-bg text-white flex flex-col items-center selection:bg-onyx-purple/30 overflow-hidden touch-none overscroll-none">
       
-      {/* Background Ambience */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[100vw] h-[100vh] bg-[radial-gradient(circle_at_50%_0%,rgba(192,132,252,0.05)_0%,transparent_50%)]" />
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[100vw] h-[50vh] bg-[radial-gradient(circle_at_50%_100%,rgba(192,132,252,0.03)_0%,transparent_50%)]" />
@@ -126,10 +124,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* 
-        DESIGN PIVOT: THE ONYX COMMAND ORB 
-        Moved to the bottom zone for absolute stability and ergonomic reach.
-      */}
       <div className="fixed inset-x-0 bottom-0 z-[200] flex justify-center pointer-events-none pb-[calc(1.5rem+env(safe-area-inset-bottom,20px))]">
         <motion.div
           onPointerDown={(e) => { e.stopPropagation(); triggerHaptic('medium'); setIsOrbExpanded(!isOrbExpanded); }}
@@ -194,7 +188,6 @@ export default function App() {
         </motion.div>
       </div>
 
-      {/* Blur Overlay for expansion */}
       <AnimatePresence>
         {isOrbExpanded && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsOrbExpanded(false)} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[190]" />

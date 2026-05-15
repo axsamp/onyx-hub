@@ -66,6 +66,7 @@ export default function App() {
   const [isIslandExpanded, setIsIslandExpanded] = useState(false);
   const [systemBudget, setSystemBudget] = useState(() => localStorage.getItem('onyx_total_budget') || '585000');
   const [time, setTime] = useState(new Date());
+  const [pageKey, setPageKey] = useState(0);
 
   useEffect(() => {
     let interval;
@@ -76,10 +77,17 @@ export default function App() {
         setTime(new Date());
       }, 2000);
     };
+    
+    // bfcache stability: force re-render when returning to the page
+    const handlePageShow = () => setPageKey(k => k + 1);
+    window.addEventListener('pageshow', handlePageShow);
+
     const handleVisibility = () => document.hidden ? clearInterval(interval) : startSync();
     document.addEventListener('visibilitychange', handleVisibility);
+    
     startSync();
     return () => {
+      window.removeEventListener('pageshow', handlePageShow);
       document.removeEventListener('visibilitychange', handleVisibility);
       clearInterval(interval);
     };
@@ -104,60 +112,74 @@ export default function App() {
   const springConfig = { stiffness: 400, damping: 30, mass: 1 };
 
   return (
-    <div className="min-h-screen bg-onyx-bg text-white flex flex-col items-center selection:bg-onyx-purple/30 overflow-x-hidden touch-pan-y overscroll-none">
+    <div className="min-h-screen bg-onyx-bg text-white flex flex-col items-center selection:bg-onyx-purple/30 overflow-x-hidden overscroll-none touch-pan-y">
+      
       {/* 
-        MOBILE ARMOR FIX (iPhone 16 Pro):
-        1. Explicit width (w-screen) and left-0 to prevent 'leftside sticking' bug.
-        2. pt-[env(safe-area-inset-top)] on a flex container to push content below the Dynamic Island.
-        3. Hard y-offset (y: 12) for secondary clearance.
+        ABSOLUTE PRECISION DOCK:
+        We remove the parent flex container and use absolute centring with 'left: 50%' 
+        and 'translateX(-50%)'. This is the most bulletproof way to prevent 'side-drifting' 
+        on iOS. We also use a 'pageKey' to force a full re-render when returning from bfcache.
       */}
-      <div className="fixed top-0 left-0 w-screen z-[100] pointer-events-none flex justify-center pt-[env(safe-area-inset-top,20px)]" style={{ height: '80px' }}>
-        <motion.div
-          onPointerDown={(e) => { e.stopPropagation(); triggerHaptic('medium'); setIsIslandExpanded(!isIslandExpanded); }}
-          animate={{ 
-            width: isIslandExpanded ? "min(340px, 92vw)" : "84px", 
-            height: isIslandExpanded ? "420px" : "38px", 
-            borderRadius: isIslandExpanded ? "32px" : "19px",
-            y: isIslandExpanded ? 0 : 12 // Guaranteed gap from the top status bar
-          }}
-          transition={springConfig}
-          className="bg-black border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,1)] overflow-hidden cursor-pointer relative flex items-center pointer-events-auto shrink-0"
-        >
-          <AnimatePresence mode="wait">
-            {!isIslandExpanded ? (
-              <motion.div key="compact" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full h-full flex items-center justify-center">
-                <span className="text-[10px] font-black text-onyx-purple uppercase tracking-[0.4em] ml-[0.4em]">ONYX</span>
-              </motion.div>
-            ) : (
-              <motion.div key="expanded" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full h-full p-6 flex flex-col">
-                <div className="flex justify-between items-start mb-8 pt-2 shrink-0">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-[0.3em]">Onyx Chassis // V5.3.3</span>
-                    <div className="w-12 h-[1px] bg-onyx-purple/40" />
-                  </div>
-                  <button onClick={(e) => { e.stopPropagation(); setIsIslandExpanded(false); }} className="p-2 -mr-2 text-zinc-600 hover:text-white transition-colors"><X size={18} /></button>
+      <motion.div
+        key={`island-${pageKey}`}
+        onPointerDown={(e) => { e.stopPropagation(); triggerHaptic('medium'); setIsIslandExpanded(!isIslandExpanded); }}
+        initial={false}
+        animate={{ 
+          x: "-50%",
+          y: isIslandExpanded ? 0 : 28, // High guaranteed offset
+          width: isIslandExpanded ? "min(340px, 92vw)" : "84px", 
+          height: isIslandExpanded ? "420px" : "38px", 
+          borderRadius: isIslandExpanded ? "32px" : "19px",
+        }}
+        style={{ 
+          position: 'fixed',
+          left: '50%',
+          top: 'env(safe-area-inset-top, 20px)',
+          zIndex: 1000,
+          background: 'black',
+          border: '1px solid rgba(255,255,255,0.1)',
+          boxShadow: '0 20px 60px rgba(0,0,0,1)',
+          cursor: 'pointer',
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center'
+        }}
+        transition={springConfig}
+      >
+        <AnimatePresence mode="wait">
+          {!isIslandExpanded ? (
+            <motion.div key="compact" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full h-full flex items-center justify-center pointer-events-none">
+              <span className="text-[10px] font-black text-onyx-purple uppercase tracking-[0.4em] ml-[0.4em]">ONYX</span>
+            </motion.div>
+          ) : (
+            <motion.div key="expanded" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full h-full p-6 flex flex-col pointer-events-auto">
+              <div className="flex justify-between items-start mb-8 pt-2 shrink-0">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-[0.3em]">Onyx Chassis // V5.3.4</span>
+                  <div className="w-12 h-[1px] bg-onyx-purple/40" />
                 </div>
+                <button onClick={(e) => { e.stopPropagation(); setIsIslandExpanded(false); }} className="p-2 -mr-2 text-zinc-600 hover:text-white transition-colors"><X size={18} /></button>
+              </div>
 
-                <div className="relative flex-1">
-                  <div className="absolute left-0 top-0 bottom-0 w-[4px] flex justify-between"><div className="w-[1.5px] h-full bg-gradient-to-b from-transparent via-onyx-purple to-transparent opacity-40" /><div className="w-[1px] h-full bg-onyx-purple/10" /></div>
-                  <div className="flex flex-col gap-10 pl-8">
-                    <div className="relative group"><span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">LIQUIDITY</span><span className="text-2xl font-black text-white">¥{parseInt(systemBudget).toLocaleString()}</span></div>
-                    <div className="relative group"><span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">TOKYO TIME</span><span className="text-2xl font-black tabular-nums">{time.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tokyo' })}</span></div>
-                    <div className="flex flex-col gap-3 pt-4">
-                      <button onClick={(e) => { e.stopPropagation(); forceRefresh(); }} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-onyx-purple hover:text-black transition-all shrink-0"><RefreshCcw className="w-3.5 h-3.5" /> Force Update</button>
-                      <button onClick={(e) => { e.stopPropagation(); clearSystemCache(); }} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-[9px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-black transition-all shrink-0"><Trash2 className="w-3.5 h-3.5" /> Reset Lattice</button>
-                    </div>
+              <div className="relative flex-1">
+                <div className="absolute left-0 top-0 bottom-0 w-[4px] flex justify-between"><div className="w-[1.5px] h-full bg-gradient-to-b from-transparent via-onyx-purple to-transparent opacity-40" /><div className="w-[1px] h-full bg-onyx-purple/10" /></div>
+                <div className="flex flex-col gap-10 pl-8">
+                  <div className="relative group"><span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">LIQUIDITY</span><span className="text-2xl font-black text-white">¥{parseInt(systemBudget).toLocaleString()}</span></div>
+                  <div className="relative group"><span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">TOKYO TIME</span><span className="text-2xl font-black tabular-nums">{time.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tokyo' })}</span></div>
+                  <div className="flex flex-col gap-3 pt-4">
+                    <button onClick={(e) => { e.stopPropagation(); forceRefresh(); }} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-onyx-purple hover:text-black transition-all shrink-0"><RefreshCcw className="w-3.5 h-3.5" /> Force Update</button>
+                    <button onClick={(e) => { e.stopPropagation(); clearSystemCache(); }} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-[9px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-black transition-all shrink-0"><Trash2 className="w-3.5 h-3.5" /> Reset Lattice</button>
                   </div>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-      </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
       <AnimatePresence>
         {isIslandExpanded && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsIslandExpanded(false)} className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[90]" />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsIslandExpanded(false)} className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[900]" />
         )}
       </AnimatePresence>
 

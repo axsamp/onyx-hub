@@ -104,19 +104,20 @@ export default function App() {
   const springConfig = { stiffness: 400, damping: 30, mass: 1 };
 
   return (
-    <div className="min-h-screen bg-onyx-bg text-white p-4 md:p-6 flex flex-col items-center selection:bg-onyx-purple/30 will-change-transform">
-      {/* Dynamic Island Mimic */}
-      <div className="fixed left-0 right-0 top-0 pt-[env(safe-area-inset-top)] z-[100] flex justify-center pointer-events-none">
+    <div className="min-h-screen bg-onyx-bg text-white p-4 md:p-6 flex flex-col items-center selection:bg-onyx-purple/30 overflow-x-hidden">
+      {/* Stabilized Dynamic Island Mimic */}
+      <div className="fixed left-0 right-0 top-0 z-[100] flex justify-center pointer-events-none p-4">
         <motion.div
           onPointerDown={(e) => { e.stopPropagation(); triggerHaptic('medium'); setIsIslandExpanded(!isIslandExpanded); }}
           animate={{ 
-            width: isIslandExpanded ? "min(320px, 90vw)" : "80px", 
-            height: isIslandExpanded ? "400px" : "36px", 
-            borderRadius: isIslandExpanded ? "28px" : "18px",
-            y: isIslandExpanded ? 12 : 8
+            width: isIslandExpanded ? "min(340px, 92vw)" : "84px", 
+            height: isIslandExpanded ? "420px" : "38px", 
+            borderRadius: isIslandExpanded ? "32px" : "19px",
+            y: isIslandExpanded ? 0 : 4
           }}
           transition={springConfig}
-          className="bg-black border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden cursor-pointer relative flex items-center pointer-events-auto"
+          style={{ marginTop: 'env(safe-area-inset-top)' }}
+          className="bg-black border border-white/10 shadow-[0_25px_50px_rgba(0,0,0,0.9)] overflow-hidden cursor-pointer relative flex items-center pointer-events-auto"
         >
           <AnimatePresence mode="wait">
             {!isIslandExpanded ? (
@@ -125,22 +126,22 @@ export default function App() {
               </motion.div>
             ) : (
               <motion.div key="expanded" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full h-full p-6 flex flex-col">
-                <div className="flex justify-between items-start mb-6">
+                <div className="flex justify-between items-start mb-6 pt-2">
                   <div className="flex flex-col gap-1">
-                    <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-[0.3em]">Onyx Chassis // V5.2.0</span>
+                    <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-[0.3em]">Onyx Chassis // V5.3.0</span>
                     <div className="w-12 h-[1px] bg-onyx-purple/40" />
                   </div>
-                  <button onClick={(e) => { e.stopPropagation(); setIsIslandExpanded(false); }} className="p-2 -mr-2 text-zinc-600 hover:text-white transition-colors"><X size={16} /></button>
+                  <button onClick={(e) => { e.stopPropagation(); setIsIslandExpanded(false); }} className="p-2 -mr-2 text-zinc-600 hover:text-white transition-colors"><X size={18} /></button>
                 </div>
 
                 <div className="relative flex-1">
                   <div className="absolute left-0 top-0 bottom-0 w-[4px] flex justify-between"><div className="w-[1.5px] h-full bg-gradient-to-b from-transparent via-onyx-purple to-transparent opacity-40" /><div className="w-[1px] h-full bg-onyx-purple/10" /></div>
                   <div className="flex flex-col gap-8 pl-8">
-                    <div className="relative group"><span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">LIQUIDITY</span><span className="text-xl font-black text-white">¥{parseInt(systemBudget).toLocaleString()}</span></div>
-                    <div className="relative group"><span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">TOKYO TIME</span><span className="text-xl font-black tabular-nums">{time.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tokyo' })}</span></div>
-                    <div className="flex flex-col gap-2 pt-4">
-                      <button onClick={(e) => { e.stopPropagation(); forceRefresh(); }} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-[8px] font-black uppercase tracking-widest hover:bg-onyx-purple hover:text-black transition-all"><RefreshCcw className="w-3 h-3" /> Force Update</button>
-                      <button onClick={(e) => { e.stopPropagation(); clearSystemCache(); }} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-[8px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-black transition-all"><Trash2 className="w-3 h-3" /> Reset Lattice</button>
+                    <div className="relative group"><span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">LIQUIDITY</span><span className="text-2xl font-black text-white">¥{parseInt(systemBudget).toLocaleString()}</span></div>
+                    <div className="relative group"><span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">TOKYO TIME</span><span className="text-2xl font-black tabular-nums">{time.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tokyo' })}</span></div>
+                    <div className="flex flex-col gap-2 pt-6">
+                      <button onClick={(e) => { e.stopPropagation(); forceRefresh(); }} className="flex items-center gap-3 px-3 py-3 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-onyx-purple hover:text-black transition-all"><RefreshCcw className="w-3.5 h-3.5" /> Force Update</button>
+                      <button onClick={(e) => { e.stopPropagation(); clearSystemCache(); }} className="flex items-center gap-3 px-3 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-[9px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-black transition-all"><Trash2 className="w-3.5 h-3.5" /> Reset Lattice</button>
                     </div>
                   </div>
                 </div>
@@ -150,20 +151,13 @@ export default function App() {
         </motion.div>
       </div>
 
-      {/* Background Dim for Island */}
       <AnimatePresence>
         {isIslandExpanded && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }} 
-            onClick={() => setIsIslandExpanded(false)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90]"
-          />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsIslandExpanded(false)} className="fixed inset-0 bg-black/70 backdrop-blur-md z-[90]" />
         )}
       </AnimatePresence>
 
-      <div className="relative w-full max-w-lg mt-24 pb-32">
+      <div className="relative w-full max-w-lg mt-32 pb-40">
         <div className="absolute left-0 top-0 bottom-0 flex gap-1 ml-[1px]"><div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent" /><div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent opacity-50" /><div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent opacity-20" /></div>
         <div className="flex flex-col">
           {APPS.map((app, index) => <NodeLink key={app.id} app={app} delay={index * 0.12} />)}

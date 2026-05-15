@@ -104,23 +104,24 @@ export default function App() {
   const springConfig = { stiffness: 400, damping: 30, mass: 1 };
 
   return (
-    <div className="min-h-screen bg-onyx-bg text-white p-4 md:p-6 flex flex-col items-center selection:bg-onyx-purple/30 overflow-x-hidden">
+    <div className="min-h-screen bg-onyx-bg text-white flex flex-col items-center selection:bg-onyx-purple/30 overflow-x-hidden touch-pan-y overscroll-none">
       {/* 
-        IRON DOCK FIX:
-        Using a fixed header with explicit height and flex alignment to force the island 
-        into the lower half of the status bar area. 
+        MOBILE ARMOR FIX (iPhone 16 Pro):
+        1. Explicit width (w-screen) and left-0 to prevent 'leftside sticking' bug.
+        2. pt-[env(safe-area-inset-top)] on a flex container to push content below the Dynamic Island.
+        3. Hard y-offset (y: 12) for secondary clearance.
       */}
-      <header className="fixed inset-x-0 top-0 z-[100] pointer-events-none flex justify-center h-32 pt-[env(safe-area-inset-top)]">
+      <div className="fixed top-0 left-0 w-screen z-[100] pointer-events-none flex justify-center pt-[env(safe-area-inset-top,20px)]" style={{ height: '80px' }}>
         <motion.div
           onPointerDown={(e) => { e.stopPropagation(); triggerHaptic('medium'); setIsIslandExpanded(!isIslandExpanded); }}
           animate={{ 
             width: isIslandExpanded ? "min(340px, 92vw)" : "84px", 
             height: isIslandExpanded ? "420px" : "38px", 
-            borderRadius: isIslandExpanded ? "28px" : "19px",
-            y: isIslandExpanded ? 0 : 20 // FORCED vertical offset from the top
+            borderRadius: isIslandExpanded ? "32px" : "19px",
+            y: isIslandExpanded ? 0 : 12 // Guaranteed gap from the top status bar
           }}
           transition={springConfig}
-          className="bg-black border border-white/10 shadow-[0_25px_50px_rgba(0,0,0,0.9)] overflow-hidden cursor-pointer relative flex items-center pointer-events-auto"
+          className="bg-black border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,1)] overflow-hidden cursor-pointer relative flex items-center pointer-events-auto shrink-0"
         >
           <AnimatePresence mode="wait">
             {!isIslandExpanded ? (
@@ -129,9 +130,9 @@ export default function App() {
               </motion.div>
             ) : (
               <motion.div key="expanded" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full h-full p-6 flex flex-col">
-                <div className="flex justify-between items-start mb-6 pt-2 shrink-0">
+                <div className="flex justify-between items-start mb-8 pt-2 shrink-0">
                   <div className="flex flex-col gap-1">
-                    <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-[0.3em]">Onyx Chassis // V5.3.2</span>
+                    <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-[0.3em]">Onyx Chassis // V5.3.3</span>
                     <div className="w-12 h-[1px] bg-onyx-purple/40" />
                   </div>
                   <button onClick={(e) => { e.stopPropagation(); setIsIslandExpanded(false); }} className="p-2 -mr-2 text-zinc-600 hover:text-white transition-colors"><X size={18} /></button>
@@ -152,16 +153,16 @@ export default function App() {
             )}
           </AnimatePresence>
         </motion.div>
-      </header>
+      </div>
 
       <AnimatePresence>
         {isIslandExpanded && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsIslandExpanded(false)} className="fixed inset-0 bg-black/70 backdrop-blur-md z-[90]" />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsIslandExpanded(false)} className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[90]" />
         )}
       </AnimatePresence>
 
-      <div className="relative w-full max-w-lg mt-32 pb-40">
-        <div className="absolute left-0 top-0 bottom-0 flex gap-1 ml-[1px]"><div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent" /><div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent opacity-50" /><div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent opacity-20" /></div>
+      <div className="relative w-full max-w-lg mt-32 pb-40 px-4">
+        <div className="absolute left-4 top-0 bottom-0 flex gap-1"><div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent" /><div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent opacity-50" /><div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent opacity-20" /></div>
         <div className="flex flex-col">
           {APPS.map((app, index) => <NodeLink key={app.id} app={app} delay={index * 0.12} />)}
         </div>

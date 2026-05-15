@@ -52,14 +52,14 @@ const apps = [
   {
     id: 'signal',
     name: 'Onyx Signal',
-    url: 'http://localhost:5174/', // Dev port for Signal
+    url: 'https://axsamp.github.io/onyx-recorder/',
     version: 'V1.0.0',
     node: '05',
   },
   {
     id: 'waypoint',
     name: 'Onyx Waypoint',
-    url: 'http://localhost:5173/', // Verified Port for Waypoint
+    url: 'https://axsamp.github.io/onyx-waypoint/',
     version: 'V1.0.0',
     node: '06',
   },

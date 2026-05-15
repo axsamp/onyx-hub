@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RefreshCcw, Trash2, X } from 'lucide-react';
+import { RefreshCcw, Trash2, X, Activity, Cpu, Clock, Wallet } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -63,10 +63,9 @@ const NodeLink = React.memo(({ app, delay }) => {
 });
 
 export default function App() {
-  const [isIslandExpanded, setIsIslandExpanded] = useState(false);
+  const [isOrbExpanded, setIsOrbExpanded] = useState(false);
   const [systemBudget, setSystemBudget] = useState(() => localStorage.getItem('onyx_total_budget') || '585000');
   const [time, setTime] = useState(new Date());
-  const [pageKey, setPageKey] = useState(0);
 
   useEffect(() => {
     let interval;
@@ -77,17 +76,10 @@ export default function App() {
         setTime(new Date());
       }, 2000);
     };
-    
-    // bfcache stability: force re-render when returning to the page
-    const handlePageShow = () => setPageKey(k => k + 1);
-    window.addEventListener('pageshow', handlePageShow);
-
     const handleVisibility = () => document.hidden ? clearInterval(interval) : startSync();
     document.addEventListener('visibilitychange', handleVisibility);
-    
     startSync();
     return () => {
-      window.removeEventListener('pageshow', handlePageShow);
       document.removeEventListener('visibilitychange', handleVisibility);
       clearInterval(interval);
     };
@@ -112,83 +104,102 @@ export default function App() {
   const springConfig = { stiffness: 400, damping: 30, mass: 1 };
 
   return (
-    <div className="min-h-screen bg-onyx-bg text-white flex flex-col items-center selection:bg-onyx-purple/30 overflow-x-hidden overscroll-none touch-pan-y">
+    <div className="min-h-screen bg-onyx-bg text-white flex flex-col items-center selection:bg-onyx-purple/30 overflow-hidden touch-none overscroll-none">
       
-      {/* 
-        ABSOLUTE PRECISION DOCK:
-        We remove the parent flex container and use absolute centring with 'left: 50%' 
-        and 'translateX(-50%)'. This is the most bulletproof way to prevent 'side-drifting' 
-        on iOS. We also use a 'pageKey' to force a full re-render when returning from bfcache.
-      */}
-      <motion.div
-        key={`island-${pageKey}`}
-        onPointerDown={(e) => { e.stopPropagation(); triggerHaptic('medium'); setIsIslandExpanded(!isIslandExpanded); }}
-        initial={false}
-        animate={{ 
-          x: "-50%",
-          y: isIslandExpanded ? 0 : 28, // High guaranteed offset
-          width: isIslandExpanded ? "min(340px, 92vw)" : "84px", 
-          height: isIslandExpanded ? "420px" : "38px", 
-          borderRadius: isIslandExpanded ? "32px" : "19px",
-        }}
-        style={{ 
-          position: 'fixed',
-          left: '50%',
-          top: 'env(safe-area-inset-top, 20px)',
-          zIndex: 1000,
-          background: 'black',
-          border: '1px solid rgba(255,255,255,0.1)',
-          boxShadow: '0 20px 60px rgba(0,0,0,1)',
-          cursor: 'pointer',
-          overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'center'
-        }}
-        transition={springConfig}
-      >
-        <AnimatePresence mode="wait">
-          {!isIslandExpanded ? (
-            <motion.div key="compact" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full h-full flex items-center justify-center pointer-events-none">
-              <span className="text-[10px] font-black text-onyx-purple uppercase tracking-[0.4em] ml-[0.4em]">ONYX</span>
-            </motion.div>
-          ) : (
-            <motion.div key="expanded" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full h-full p-6 flex flex-col pointer-events-auto">
-              <div className="flex justify-between items-start mb-8 pt-2 shrink-0">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-[0.3em]">Onyx Chassis // V5.3.4</span>
-                  <div className="w-12 h-[1px] bg-onyx-purple/40" />
-                </div>
-                <button onClick={(e) => { e.stopPropagation(); setIsIslandExpanded(false); }} className="p-2 -mr-2 text-zinc-600 hover:text-white transition-colors"><X size={18} /></button>
-              </div>
+      {/* Background Ambience */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[100vw] h-[100vh] bg-[radial-gradient(circle_at_50%_0%,rgba(192,132,252,0.05)_0%,transparent_50%)]" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[100vw] h-[50vh] bg-[radial-gradient(circle_at_50%_100%,rgba(192,132,252,0.03)_0%,transparent_50%)]" />
+      </div>
 
-              <div className="relative flex-1">
-                <div className="absolute left-0 top-0 bottom-0 w-[4px] flex justify-between"><div className="w-[1.5px] h-full bg-gradient-to-b from-transparent via-onyx-purple to-transparent opacity-40" /><div className="w-[1px] h-full bg-onyx-purple/10" /></div>
-                <div className="flex flex-col gap-10 pl-8">
-                  <div className="relative group"><span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">LIQUIDITY</span><span className="text-2xl font-black text-white">¥{parseInt(systemBudget).toLocaleString()}</span></div>
-                  <div className="relative group"><span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">TOKYO TIME</span><span className="text-2xl font-black tabular-nums">{time.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tokyo' })}</span></div>
-                  <div className="flex flex-col gap-3 pt-4">
-                    <button onClick={(e) => { e.stopPropagation(); forceRefresh(); }} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-onyx-purple hover:text-black transition-all shrink-0"><RefreshCcw className="w-3.5 h-3.5" /> Force Update</button>
-                    <button onClick={(e) => { e.stopPropagation(); clearSystemCache(); }} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-[9px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-black transition-all shrink-0"><Trash2 className="w-3.5 h-3.5" /> Reset Lattice</button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-
-      <AnimatePresence>
-        {isIslandExpanded && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsIslandExpanded(false)} className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[900]" />
-        )}
-      </AnimatePresence>
-
-      <div className="relative w-full max-w-lg mt-32 pb-40 px-4">
-        <div className="absolute left-4 top-0 bottom-0 flex gap-1"><div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent" /><div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent opacity-50" /><div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent opacity-20" /></div>
-        <div className="flex flex-col">
-          {APPS.map((app, index) => <NodeLink key={app.id} app={app} delay={index * 0.12} />)}
+      <div className="relative w-full max-w-lg mt-12 pb-60 px-6 h-screen overflow-y-auto no-scrollbar touch-pan-y">
+        <div className="flex flex-col gap-4 mb-12 pt-12">
+            <span className="text-[10px] font-black text-onyx-purple uppercase tracking-[0.8em] opacity-40">Lattice Registry</span>
+            <h1 className="text-4xl font-black tracking-tighter uppercase leading-none text-white/20">Onyx Hub</h1>
+        </div>
+        
+        <div className="relative">
+          <div className="absolute left-0 top-0 bottom-0 flex gap-1 ml-[1px]"><div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent" /><div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent opacity-50" /><div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent opacity-20" /></div>
+          <div className="flex flex-col">
+            {APPS.map((app, index) => <NodeLink key={app.id} app={app} delay={index * 0.12} />)}
+          </div>
         </div>
       </div>
+
+      {/* 
+        DESIGN PIVOT: THE ONYX COMMAND ORB 
+        Moved to the bottom zone for absolute stability and ergonomic reach.
+      */}
+      <div className="fixed inset-x-0 bottom-0 z-[200] flex justify-center pointer-events-none pb-[calc(1.5rem+env(safe-area-inset-bottom,20px))]">
+        <motion.div
+          onPointerDown={(e) => { e.stopPropagation(); triggerHaptic('medium'); setIsOrbExpanded(!isOrbExpanded); }}
+          animate={{ 
+            width: isOrbExpanded ? "min(340px, 92vw)" : "60px", 
+            height: isOrbExpanded ? "380px" : "60px", 
+            borderRadius: isOrbExpanded ? "32px" : "30px",
+            y: isOrbExpanded ? -20 : 0
+          }}
+          transition={springConfig}
+          className="bg-black/80 backdrop-blur-3xl border border-white/10 shadow-[0_-20px_50px_rgba(0,0,0,0.8)] cursor-pointer relative flex flex-col items-center pointer-events-auto origin-bottom"
+        >
+          <AnimatePresence mode="wait">
+            {!isOrbExpanded ? (
+              <motion.div key="compact" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="w-full h-full flex items-center justify-center relative">
+                <div className="absolute inset-0 bg-onyx-purple/10 rounded-full blur-xl animate-pulse" />
+                <div className="relative w-2.5 h-2.5 bg-onyx-purple rounded-full shadow-[0_0_15px_rgba(192,132,252,0.8)]" />
+              </motion.div>
+            ) : (
+              <motion.div key="expanded" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="w-full h-full p-8 flex flex-col">
+                <div className="flex justify-between items-start mb-10 shrink-0">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[8px] font-black text-onyx-purple uppercase tracking-[0.4em]">Command Node</span>
+                    <span className="text-[7px] font-mono text-onyx-muted uppercase tracking-[0.2em]">Chassis V6.0.0</span>
+                  </div>
+                  <button onClick={(e) => { e.stopPropagation(); setIsOrbExpanded(false); }} className="p-2 -mr-2 text-zinc-600 hover:text-white transition-colors"><X size={18} /></button>
+                </div>
+
+                <div className="flex-1 flex flex-col gap-10">
+                   <div className="flex flex-col gap-1 group">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Wallet size={10} className="text-onyx-purple opacity-40" />
+                        <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-widest">Available Liquidity</span>
+                      </div>
+                      <span className="text-3xl font-black tracking-tighter tabular-nums">¥{parseInt(systemBudget).toLocaleString()}</span>
+                   </div>
+
+                   <div className="flex flex-col gap-1 group">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Clock size={10} className="text-onyx-purple opacity-40" />
+                        <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-widest">Tokyo Standard</span>
+                      </div>
+                      <span className="text-3xl font-black tracking-tighter tabular-nums">
+                        {time.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Tokyo' })}
+                      </span>
+                   </div>
+
+                   <div className="flex flex-col gap-2 mt-auto">
+                      <button onClick={(e) => { e.stopPropagation(); forceRefresh(); }} className="flex items-center justify-between px-5 py-4 rounded-2xl bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-widest hover:bg-onyx-purple hover:text-black transition-all">
+                        <span>Force Sync</span>
+                        <RefreshCcw className="w-3.5 h-3.5" />
+                      </button>
+                      <button onClick={(e) => { e.stopPropagation(); clearSystemCache(); }} className="flex items-center justify-between px-5 py-4 rounded-2xl bg-red-500/5 border border-red-500/10 text-[9px] font-black uppercase tracking-widest text-red-500/60 hover:bg-red-500 hover:text-black transition-all">
+                        <span>Reset Chassis</span>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                   </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </div>
+
+      {/* Blur Overlay for expansion */}
+      <AnimatePresence>
+        {isOrbExpanded && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsOrbExpanded(false)} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[190]" />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

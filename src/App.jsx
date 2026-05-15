@@ -105,30 +105,40 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-onyx-bg text-white p-4 md:p-6 flex flex-col items-center selection:bg-onyx-purple/30 overflow-x-hidden">
-      {/* Stabilized Dynamic Island Mimic */}
-      <div className="fixed left-0 right-0 top-0 z-[100] flex justify-center pointer-events-none p-4">
+      {/* 
+        HARD DOCK FIX: 
+        We use a nested fixed container strategy to ensure the island is physically 
+        offset from the status bar even if the safe-area values flicker during navigation.
+      */}
+      <div className="fixed inset-x-0 top-0 z-[100] pointer-events-none flex justify-center" style={{ top: 'max(12px, env(safe-area-inset-top))' }}>
         <motion.div
           onPointerDown={(e) => { e.stopPropagation(); triggerHaptic('medium'); setIsIslandExpanded(!isIslandExpanded); }}
           animate={{ 
             width: isIslandExpanded ? "min(340px, 92vw)" : "84px", 
-            height: isIslandExpanded ? "420px" : "38px", 
-            borderRadius: isIslandExpanded ? "32px" : "19px",
-            y: isIslandExpanded ? 0 : 4
+            height: isIslandExpanded ? "40px" : "40px", // Baseline height is 40px
+            borderRadius: isIslandExpanded ? "32px" : "20px",
+            scaleY: isIslandExpanded ? 10.5 : 1, // Use scaleY for expansion to avoid layout shifts
           }}
           transition={springConfig}
-          style={{ marginTop: 'env(safe-area-inset-top)' }}
-          className="bg-black border border-white/10 shadow-[0_25px_50px_rgba(0,0,0,0.9)] overflow-hidden cursor-pointer relative flex items-center pointer-events-auto"
+          className="bg-black border border-white/10 shadow-[0_25px_50px_rgba(0,0,0,0.9)] cursor-pointer relative flex items-center justify-center pointer-events-auto origin-top"
         >
           <AnimatePresence mode="wait">
             {!isIslandExpanded ? (
-              <motion.div key="compact" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full h-full flex items-center justify-center">
+              <motion.div key="compact" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center justify-center h-full">
                 <span className="text-[10px] font-black text-onyx-purple uppercase tracking-[0.4em] ml-[0.4em]">ONYX</span>
               </motion.div>
             ) : (
-              <motion.div key="expanded" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full h-full p-6 flex flex-col">
-                <div className="flex justify-between items-start mb-6 pt-2">
+              <motion.div 
+                key="expanded" 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                exit={{ opacity: 0 }} 
+                className="absolute inset-0 p-6 flex flex-col"
+                style={{ scaleY: 1 / 10.5 }} // Reverse the scale for content
+              >
+                <div className="flex justify-between items-start mb-10 pt-2 shrink-0">
                   <div className="flex flex-col gap-1">
-                    <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-[0.3em]">Onyx Chassis // V5.3.0</span>
+                    <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-[0.3em]">Onyx Chassis // V5.3.1</span>
                     <div className="w-12 h-[1px] bg-onyx-purple/40" />
                   </div>
                   <button onClick={(e) => { e.stopPropagation(); setIsIslandExpanded(false); }} className="p-2 -mr-2 text-zinc-600 hover:text-white transition-colors"><X size={18} /></button>
@@ -136,12 +146,12 @@ export default function App() {
 
                 <div className="relative flex-1">
                   <div className="absolute left-0 top-0 bottom-0 w-[4px] flex justify-between"><div className="w-[1.5px] h-full bg-gradient-to-b from-transparent via-onyx-purple to-transparent opacity-40" /><div className="w-[1px] h-full bg-onyx-purple/10" /></div>
-                  <div className="flex flex-col gap-8 pl-8">
+                  <div className="flex flex-col gap-10 pl-8">
                     <div className="relative group"><span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">LIQUIDITY</span><span className="text-2xl font-black text-white">¥{parseInt(systemBudget).toLocaleString()}</span></div>
                     <div className="relative group"><span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">TOKYO TIME</span><span className="text-2xl font-black tabular-nums">{time.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tokyo' })}</span></div>
-                    <div className="flex flex-col gap-2 pt-6">
-                      <button onClick={(e) => { e.stopPropagation(); forceRefresh(); }} className="flex items-center gap-3 px-3 py-3 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-onyx-purple hover:text-black transition-all"><RefreshCcw className="w-3.5 h-3.5" /> Force Update</button>
-                      <button onClick={(e) => { e.stopPropagation(); clearSystemCache(); }} className="flex items-center gap-3 px-3 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-[9px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-black transition-all"><Trash2 className="w-3.5 h-3.5" /> Reset Lattice</button>
+                    <div className="flex flex-col gap-3 pt-4">
+                      <button onClick={(e) => { e.stopPropagation(); forceRefresh(); }} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-onyx-purple hover:text-black transition-all shrink-0"><RefreshCcw className="w-3.5 h-3.5" /> Force Update</button>
+                      <button onClick={(e) => { e.stopPropagation(); clearSystemCache(); }} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-[9px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-black transition-all shrink-0"><Trash2 className="w-3.5 h-3.5" /> Reset Lattice</button>
                     </div>
                   </div>
                 </div>

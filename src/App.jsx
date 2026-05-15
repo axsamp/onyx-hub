@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, RefreshCcw, Trash2 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -16,7 +16,7 @@ const triggerHaptic = (type = 'light') => {
       else if (type === 'medium') navigator.vibrate(20);
     }
   } catch (e) {
-    // Ignore vibration failures (usually due to lack of user gesture)
+    // Ignore vibration failures
   }
 };
 
@@ -25,42 +25,42 @@ const apps = [
     id: 'itinerary',
     name: 'Itinerary Command',
     url: 'https://axsamp.github.io/onyx-itinerary/',
-    version: 'V4.1.2',
+    version: 'V4.1.5',
     node: '01',
   },
   {
     id: 'budget',
     name: 'Budget Buffer',
     url: 'https://axsamp.github.io/budget-buffer/',
-    version: 'V3.8.0',
+    version: 'V3.8.2',
     node: '02',
   },
   {
     id: 'converter',
     name: 'Unit Converter',
     url: 'https://axsamp.github.io/onyx-converter/',
-    version: 'V2.5.4',
+    version: 'V2.5.6',
     node: '03',
   },
   {
     id: 'stamps',
     name: 'Stamp Collector',
     url: 'https://axsamp.github.io/onyx-stamps/',
-    version: 'V1.9.9',
+    version: 'V1.9.11',
     node: '04',
   },
   {
     id: 'signal',
     name: 'Onyx Signal',
     url: 'https://axsamp.github.io/onyx-recorder/',
-    version: 'V1.0.0',
+    version: 'V1.0.2',
     node: '05',
   },
   {
     id: 'waypoint',
     name: 'Onyx Waypoint',
     url: 'https://axsamp.github.io/onyx-waypoint/',
-    version: 'V1.0.0',
+    version: 'V1.0.4',
     node: '06',
   },
 ];
@@ -94,13 +94,11 @@ const NodeLink = ({ app, delay }) => {
           animate={{ pathLength: 1 }}
           transition={{ delay: delay + 0.5, duration: 1 }}
         />
-        {/* Connection Joint */}
         <motion.circle
           cx="0" cy="12" r="2"
           fill={showActiveState ? "#C084FC" : "#27272A"}
           className="transition-colors duration-300"
         />
-        {/* Animated Pulse Packet */}
         {showActiveState && (
           <motion.circle
             r="1.5"
@@ -113,7 +111,7 @@ const NodeLink = ({ app, delay }) => {
               duration: 1.5 + (Math.random() * 0.5), 
               repeat: Infinity, 
               ease: "linear",
-              delay: delay // Stagger the pulses
+              delay: delay
             }}
           />
         )}
@@ -176,8 +174,26 @@ export default function App() {
     };
   }, []);
 
-  const islandX = useTransform(scrollY, [0, 80], [0, -110]);
-  const islandScale = useTransform(scrollY, [0, 80], [1, 0.85]);
+  const clearSystemCache = () => {
+    if (confirm("CLEAR ALL ONYX LOCAL DATA? This will reset all apps.")) {
+      localStorage.clear();
+      window.location.reload();
+    }
+  };
+
+  const forceRefresh = () => {
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        for (const registration of registrations) {
+          registration.unregister();
+        }
+        window.location.reload(true);
+      });
+    } else {
+      window.location.reload(true);
+    }
+  };
+
   const springConfig = { stiffness: 400, damping: 30, mass: 1 };
 
   return (
@@ -188,7 +204,7 @@ export default function App() {
           onPointerDown={() => { triggerHaptic('medium'); setIsIslandExpanded(!isIslandExpanded); }}
           animate={{
             width: isIslandExpanded ? "300px" : "80px",
-            height: isIslandExpanded ? "280px" : "44px",
+            height: isIslandExpanded ? "380px" : "44px",
             borderBottomRightRadius: isIslandExpanded ? "24px" : "12px",
           }}
           transition={springConfig}
@@ -215,52 +231,43 @@ export default function App() {
                 exit={{ opacity: 0 }} 
                 className="w-full h-full p-6 flex flex-col"
               >
-                <div className="flex flex-col gap-1 mb-8">
-                  <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-[0.3em]">Onyx Chassis</span>
+                <div className="flex flex-col gap-1 mb-6">
+                  <span className="text-[8px] font-bold text-onyx-muted uppercase tracking-[0.3em]">Onyx Chassis // V5.0.0</span>
                   <div className="w-12 h-[1px] bg-onyx-purple/40" />
                 </div>
 
-                {/* Unique Fractal Mini Lattice */}
                 <div className="relative flex-1">
-                  {/* Onyx Double-Rail Backbone */}
                   <div className="absolute left-0 top-0 bottom-0 w-[4px] flex justify-between">
                     <div className="w-[1.5px] h-full bg-gradient-to-b from-transparent via-onyx-purple to-transparent opacity-40" />
                     <div className="w-[1px] h-full bg-onyx-purple/10" />
                   </div>
 
-                  <div className="flex flex-col gap-12 pl-8">
-                    {/* Node: Budget */}
+                  <div className="flex flex-col gap-8 pl-8">
                     <div className="relative group">
-                      <svg className="absolute -left-8 top-2 w-8 h-4 overflow-visible">
-                        <path d="M0 0 L18 0 L24 6" fill="none" stroke="#C084FC" strokeWidth="1" opacity="0.4" />
-                        <rect x="-2" y="-2" width="4" height="4" fill="#C084FC" transform="rotate(45)" />
-                      </svg>
                       <span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">LIQUIDITY</span>
                       <span className="text-xl font-black text-white">¥{parseInt(systemBudget).toLocaleString()}</span>
                     </div>
 
-                    {/* Node: Time */}
                     <div className="relative group">
-                      <svg className="absolute -left-8 top-2 w-8 h-4 overflow-visible">
-                        <path d="M0 0 L18 0 L24 6" fill="none" stroke="#3F3F46" strokeWidth="1" opacity="0.4" />
-                        <rect x="-2" y="-2" width="4" height="4" fill="#27272A" transform="rotate(45)" />
-                      </svg>
-                      <span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">TOKYO STATION</span>
+                      <span className="text-[7px] font-bold text-onyx-muted uppercase tracking-widest block mb-1">TOKYO TIME</span>
                       <span className="text-xl font-black tabular-nums">
                         {new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tokyo' })}
                       </span>
                     </div>
 
-                    {/* Node: Signal Arch (New Integration) */}
-                    <div className="relative group">
-                      <svg className="absolute -left-8 top-2 w-8 h-4 overflow-visible">
-                        <path d="M0 0 L18 0 L24 6" fill="none" stroke="#C084FC" strokeWidth="1" opacity="0.4" />
-                        <rect x="-2" y="-2" width="4" height="4" fill="#C084FC" transform="rotate(45)" />
-                      </svg>
-                      <span className="text-[7px] font-bold text-onyx-purple/60 uppercase tracking-widest block mb-1">SIGNAL ARCHIVE</span>
-                      <span className="text-xl font-black tabular-nums text-white">
-                        {localStorage.getItem('onyx_signal_count') || '0'} <span className="text-[10px] text-onyx-muted">NODES</span>
-                      </span>
+                    <div className="flex flex-col gap-2 pt-4">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); forceRefresh(); }}
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-[8px] font-black uppercase tracking-widest hover:bg-onyx-purple hover:text-black transition-all"
+                      >
+                        <RefreshCcw className="w-3 h-3" /> Force Update
+                      </button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); clearSystemCache(); }}
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-[8px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-black transition-all"
+                      >
+                        <Trash2 className="w-3 h-3" /> Reset Lattice
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -272,14 +279,12 @@ export default function App() {
 
       {/* Main Structural Lattice */}
       <div className="relative w-full max-w-lg mt-12 pb-32">
-        {/* Central Backbone Lines */}
         <div className="absolute left-0 top-0 bottom-0 flex gap-1 ml-[1px]">
           <div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent" />
           <div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent opacity-50" />
           <div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent opacity-20" />
         </div>
 
-        {/* App Nodes */}
         <div className="flex flex-col">
           {apps.map((app, index) => (
             <NodeLink key={app.id} app={app} delay={index * 0.15} />

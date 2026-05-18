@@ -44,6 +44,19 @@ const NodeLink = React.memo(({ app, delay }) => {
 
   const showActiveState = isHovered || isMobile;
 
+  const targetUrl = useMemo(() => {
+    try {
+      const theme = localStorage.getItem('onyx_theme') || 'cobalt';
+      const stealth = localStorage.getItem('onyx_stealth_mode') || 'false';
+      const url = new URL(app.url);
+      url.searchParams.set('theme', theme);
+      url.searchParams.set('stealth', stealth);
+      return url.toString();
+    } catch (e) {
+      return app.url;
+    }
+  }, [app.url]);
+
   return (
     <div className="relative pl-16 py-10 group will-change-transform">
       <svg className="absolute left-0 top-1/2 -translate-y-1/2 w-16 h-24 pointer-events-none overflow-visible">
@@ -67,7 +80,7 @@ const NodeLink = React.memo(({ app, delay }) => {
         )}
       </svg>
       <motion.a 
-        href={app.url} 
+        href={targetUrl} 
         onPointerDown={handleTap} 
         onMouseEnter={() => setIsHovered(true)} 
         onMouseLeave={() => setIsHovered(false)} 
